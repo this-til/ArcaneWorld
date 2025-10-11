@@ -1,0 +1,41 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>netstandard2.1</TargetFramework>
+        <IsPackable>false</IsPackable>
+        <Nullable>enable</Nullable>
+        <LangVersion>latest</LangVersion>
+
+        <EnforceExtendedAnalyzerRules>true</EnforceExtendedAnalyzerRules>
+        <IsRoslynComponent>true</IsRoslynComponent>
+
+        <RootNamespace>RegisterSystemGenerators</RootNamespace>
+        <PackageId>RegisterSystem.Generators</PackageId>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Microsoft.CodeAnalysis.Analyzers" Version="3.3.4">
+            <PrivateAssets>all</PrivateAssets>
+            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+        </PackageReference>
+        <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.3.0"/>
+        <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Workspaces" Version="4.3.0"/>
+    </ItemGroup>
+
+    <!-- PostBuild 事件：只拷贝 DLL 文件到指定目录 -->
+    <!--<Target Name="PostBuild" AfterTargets="PostBuildEvent">
+        <PropertyGroup>
+            <TargetDir>../</TargetDir>
+        </PropertyGroup>
+
+        &lt;!&ndash; 确保目标目录存在 &ndash;&gt;
+        <MakeDir Directories="$(TargetDir)" Condition="!Exists('$(TargetDir)')" />
+
+        &lt;!&ndash; 只拷贝 DLL 文件 &ndash;&gt;
+        <Copy SourceFiles="$(OutputPath)$(AssemblyName).dll"
+              DestinationFolder="$(TargetDir)"
+              OverwriteReadOnlyFiles="true" />
+    </Target>
+-->
+
+</Project>
