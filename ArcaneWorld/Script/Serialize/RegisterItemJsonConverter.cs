@@ -1,15 +1,16 @@
-﻿using Newtonsoft.Json;
+﻿using System.Text.Json.Serialization;
+using ArcaneWorld.Attribute;
+using ArcaneWorld.Global;
+using Newtonsoft.Json;
 using RegisterSystem;
+using JsonConverter = Newtonsoft.Json.JsonConverter;
 
-namespace CakeToolset.Serialize;
+namespace ArcaneWorld.Serialize;
 
+[JsonConverterAutomaticLoad]
 public class RegisterItemJsonConverter : JsonConverter {
 
-    public RegisterSystem.RegisterSystem registerSystem { get; }
-
-    public RegisterItemJsonConverter(RegisterSystem.RegisterSystem registerSystem) {
-        this.registerSystem = registerSystem;
-    }
+    public RegisterSystem.RegisterSystem registerSystem => RegisterSystemHold.registerSystem;
 
     public override bool CanConvert(Type objectType) {
         return typeof(RegisterBasics).IsAssignableFrom(objectType);

@@ -40,33 +40,33 @@ public class EventRegistrantTypeFilter : IEventRegistrantFilter {
 
     public bool isFilter(IEventBus eventBus, object registrant) {
         if (registrant.GetType().IsPrimitive) {
-            if (eventBus.logLevel <= LogLevel.WARN) {
-                eventBus.log?.warn($"注册项[{registrant}]是基础数据类型，他不能被注册");
+            if (eventBus.log?.IsWarnEnabled ?? false) {
+                eventBus.log?.Warn($"注册项 {registrant.GetType()} 是基础数据类型，他不能被注册");
             }
             return true;
         }
 
         if (registrant.GetType().IsValueType) {
-            if (eventBus.logLevel <= LogLevel.WARN) {
-                eventBus.log?.warn($"注册项[{registrant}]是结构体，他不能被注册");
+            if (eventBus.log?.IsWarnEnabled ?? false) {
+                eventBus.log?.Warn($"注册项 {registrant.GetType()} 是结构体，他不能被注册");
             }
             return true;
         }
 
         if (registrant.GetType().IsEnum) {
-            if (eventBus.logLevel <= LogLevel.WARN) {
-                eventBus.log?.warn($"注册项[{registrant}]是枚举，他不能被注册");
+            if (eventBus.log?.IsWarnEnabled ?? false) {
+                eventBus.log?.Warn($"注册项 {registrant.GetType()} 是枚举，他不能被注册");
             }
             return true;
         }
 
         if (registrant is IEventBus) {
-            if (eventBus.logLevel <= LogLevel.WARN) {
-                eventBus.log?.warn($"注册项[{registrant}]是{typeof(IEventBus)}，他不能被注册");
+            if (eventBus.log?.IsWarnEnabled ?? false) {
+                eventBus.log?.Warn($"注册项 {registrant.GetType()} 是{typeof(IEventBus)}，他不能被注册");
             }
             return true;
         }
-        // 否则，返回false
+
         return false;
     }
 

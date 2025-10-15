@@ -15,6 +15,14 @@ run/main_scene="res://main.tscn"
 config/features=PackedStringArray("4.5", "C#", "Forward Plus")
 config/icon="res://icon.svg"
 
+[autoload]
+
+LogManage="*res://Global/LogManage.cs"
+AssemblyLoadManage="*res://Global/AssemblyLoadManage.cs"
+RegisterSystemHold="*res://Global/RegisterSystemHold.cs"
+EventBusHold="*res://Global/EventBusHold.cs"
+JsonSerializerHold="*res://Global/JsonSerializerHold.cs"
+
 [dotnet]
 
 project/assembly_name="ArcaneWorld"
@@ -22,4 +30,4 @@ project/solution_directory="../"
 
 [editor_plugins]
 
-enabled=PackedStringArray("res://addons/custom_type/plugin.cfg")
+enabled=PackedStringArray("res://addons/custom_type/plugin.cfg", "res://addons/resource_tree_generator/plugin.cfg")

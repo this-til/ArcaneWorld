@@ -64,7 +64,7 @@ public class RegisterBasics : IComparable<RegisterBasics> {
                             (GetType().GetProperty(t.attribute.controlRegistration!, BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)?.GetValue(this) as bool? ?? false) ||
                             (GetType().GetField(t.attribute.controlRegistration!, BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)?.GetValue(this) as bool? ?? false)
                     )
-                    .Exception(e => registerSystem.log?.error($"获取注册控制属性值时发生异常: {e.Message}", e))
+                    .Exception(e => { if (registerSystem.log?.IsErrorEnabled ?? false) registerSystem.log?.Error($"调用 ({GetType()}-{name}).getDefaultRegisterItem() 中获取注册控制属性值时出现异常：", e); })
                     .NotNull()
             )
             .Where(t => typeof(RegisterBasics).IsAssignableFrom(t.type))
@@ -77,7 +77,7 @@ public class RegisterBasics : IComparable<RegisterBasics> {
                             registerBasics = (RegisterBasics)Activator.CreateInstance(t.type)
                         }
                     )
-                    .Exception(e => registerSystem.log?.error($"创建 RegisterBasics 实例时发生异常，类型: {GetType().Name}", e))
+                    .Exception(e => { if (registerSystem.log?.IsErrorEnabled ?? false) registerSystem.log?.Error($"调用 ({GetType()}-{name}).getDefaultRegisterItem() 中创建 RegisterBasics 实例时出现异常：", e); })
                     .NotNull()
                     .Peek(
                         t => {
@@ -85,7 +85,7 @@ public class RegisterBasics : IComparable<RegisterBasics> {
                             (t.memberInfo as FieldInfo)?.SetValue(null, t.registerBasics);
                         }
                     )
-                    .Exception(e => registerSystem.log?.error($"设置静态属性或字段值时发生异常，成员: {GetType().Name}", e))
+                    .Exception(e => { if (registerSystem.log?.IsErrorEnabled ?? false) registerSystem.log?.Error($"调用 ({GetType()}-{name}).getDefaultRegisterItem() 中设置静态属性或字段值时出现异常：", e); })
                     .NotNull()
             )
             .Peek(t => t.registerBasics.name ??= new ResourceLocation(name.domain, $"{name.path}.{t.memberInfo.Name}"))
@@ -93,7 +93,7 @@ public class RegisterBasics : IComparable<RegisterBasics> {
                 t => t.registerBasics.registerManage is null,
                 lt => lt
                     .Peek(t => t.registerBasics.registerManage = registerSystem.getRegisterManageOfRegisterType(t.registerBasics.GetType())!)
-                    .Where(t => t.registerBasics.registerManage is not null, t => registerSystem.log?.error($"未找到 RegisterBasics 对应的 RegisterManage，类型: {t.registerBasics.GetType().Name}"))
+                    .Where(t => t.registerBasics.registerManage is not null, t => { if (registerSystem.log?.IsErrorEnabled ?? false) registerSystem.log?.Error($"调用 ({GetType()}-{name}).getDefaultRegisterItem() 中未找到 RegisterBasics 对应的 RegisterManage，类型: {t.registerBasics.GetType().Name}"); })
             )
             .Peek(t => t.registerBasics.registerSystem = registerSystem)
             .Peek(t => t.registerBasics.basics = this)

@@ -204,7 +204,7 @@ public static class LinqExtensions {
         Func<T, V> valueSelector,
         Func<K, IList<V>>? createContainer = null,
         IEnumerable<K>? defKeys = null
-    ) where K : notnull {
+    ) {
 
         createContainer ??= k => new List<V>();
 

@@ -1,4 +1,6 @@
-﻿namespace ArcaneWorld.Capacity;
+﻿using ArcaneWorld.Register;
+
+namespace ArcaneWorld.Capacity;
 
 public interface IHandler<in T> : ILock where T : class {
 
@@ -19,5 +21,17 @@ public interface IHandler<in T> : ILock where T : class {
     /// <param name="simulation">如果为true表示执行模拟操作，不会改编容器状态</param>
     /// <returns>提取到的数量</returns>
     long extract(T item, long count, bool simulation);
+
+}
+
+public interface IItemHandler : IHandler<Item> {
+
+}
+
+public interface IFluidHandler : IHandler<Fluid> {
+
+}
+
+public interface IEnergyHandler : IHandler<OriginalVis> {
 
 }

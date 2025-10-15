@@ -156,9 +156,16 @@ public class RegisterManageGenerator : IIncrementalGenerator {
                 assignment => {
                     // 分支1：处理 new 表达式赋值
                     if (assignment.Right is ObjectCreationExpressionSyntax newExpression) {
-                        return ProcessNewExpressionAssignment(assignment, newExpression, sourceContext, classSymbol, semanticModel, constraintType);
+                        return ProcessNewExpressionAssignment(
+                            assignment,
+                            newExpression,
+                            sourceContext,
+                            classSymbol,
+                            semanticModel,
+                            constraintType
+                        );
                     }
-                    
+
                     // 分支2：处理非 new 表达式赋值（如方法调用等）
                     return ProcessNonNewExpressionAssignment(assignment, sourceContext, classSymbol, semanticModel, constraintType);
                 }
@@ -171,7 +178,15 @@ public class RegisterManageGenerator : IIncrementalGenerator {
     /// <summary>
     /// 处理 new 表达式赋值
     /// </summary>
-    protected virtual FieldDefinition? ProcessNewExpressionAssignment(AssignmentExpressionSyntax assignment, ObjectCreationExpressionSyntax newExpression, SourceProductionContext sourceContext, INamedTypeSymbol classSymbol, SemanticModel semanticModel, ITypeSymbol? constraintType) {
+    protected virtual FieldDefinition? ProcessNewExpressionAssignment
+    (
+        AssignmentExpressionSyntax assignment,
+        ObjectCreationExpressionSyntax newExpression,
+        SourceProductionContext sourceContext,
+        INamedTypeSymbol classSymbol,
+        SemanticModel semanticModel,
+        ITypeSymbol? constraintType
+    ) {
         // 获取右侧表达式的类型信息
         TypeInfo typeInfo = ModelExtensions.GetTypeInfo(semanticModel, newExpression);
         if (typeInfo.Type is not INamedTypeSymbol rightTypeSymbol) {
@@ -355,8 +370,19 @@ public class RegisterManageGenerator : IIncrementalGenerator {
                             ClassDeclaration(classSymbol.Name)
                                 .WithModifiers(TokenList(Token(SyntaxKind.PublicKeyword), Token(SyntaxKind.PartialKeyword)))
                                 .WithMembers(List<MemberDeclarationSyntax>())
-                                .AddMembers(GenerateProperties(validFields.Where(f => f.NeedsGeneration).ToList()))
-                                .AddMembers(GenerateMethod(validFields))
+                                .AddMembers(
+                                    GenerateProperties(validFields.Where(f => f.NeedsGeneration).ToList())
+                                        .Concat(
+                                            [
+                                                GenerateInstanceProperty(classSymbol),
+                                                GenerateMethod(validFields),
+                                                GenerateAwakeInitOverride(classSymbol, classDeclarationSyntax)
+                                            ]
+                                        )
+                                        .Where(r => r is not null)
+                                        .Cast<MemberDeclarationSyntax>()
+                                        .ToArray()
+                                )
                         )
                 )
             )
@@ -377,8 +403,10 @@ public class RegisterManageGenerator : IIncrementalGenerator {
         return filteredFieldDefinition.Select(
                 f => {
                     // 根据 IsNullable 决定类型名称
-                    string typeName = f.IsNullable ? f.Type + "?" : f.Type;
-                    
+                    string typeName = f.IsNullable
+                        ? f.Type + "?"
+                        : f.Type;
+
                     var property = PropertyDeclaration(
                             IdentifierName(typeName),
                             Identifier(f.Name)
@@ -497,6 +525,94 @@ public class RegisterManageGenerator : IIncrementalGenerator {
                 }
             )
         );
+    }
+
+    /// <summary>
+    /// 生成静态实例属性
+    /// </summary>
+    protected virtual MemberDeclarationSyntax? GenerateInstanceProperty(INamedTypeSymbol classSymbol) {
+        return PropertyDeclaration(
+                IdentifierName(classSymbol.Name),
+                Identifier("instance")
+            )
+            .WithModifiers(
+                TokenList(
+                    Token(SyntaxKind.PublicKeyword),
+                    Token(SyntaxKind.StaticKeyword)
+                )
+            )
+            .WithAccessorList(
+                AccessorList(
+                    List(
+                        AccessorDeclaration(SyntaxKind.GetAccessorDeclaration)
+                            .WithSemicolonToken(Token(SyntaxKind.SemicolonToken)),
+                        AccessorDeclaration(SyntaxKind.SetAccessorDeclaration)
+                            .WithModifiers(TokenList(Token(SyntaxKind.PrivateKeyword)))
+                            .WithSemicolonToken(Token(SyntaxKind.SemicolonToken))
+                    )
+                )
+            )
+            .WithInitializer(
+                EqualsValueClause(
+                    PostfixUnaryExpression(
+                        SyntaxKind.SuppressNullableWarningExpression,
+                        LiteralExpression(SyntaxKind.NullLiteralExpression)
+                    )
+                )
+            )
+            .WithSemicolonToken(Token(SyntaxKind.SemicolonToken));
+    }
+
+    /// <summary>
+    /// 生成 awakeInit 方法重写（如果未重写）
+    /// </summary>
+    protected virtual MemberDeclarationSyntax? GenerateAwakeInitOverride(INamedTypeSymbol classSymbol, ClassDeclarationSyntax classDeclarationSyntax) {
+        // 检查是否已经重写了 awakeInit 方法
+        bool hasAwakeInitOverride = classDeclarationSyntax.Members
+            .OfType<MethodDeclarationSyntax>()
+            .Any(
+                method => method.Identifier.ValueText == "awakeInit" &&
+                          method.Modifiers.Any(m => m.IsKind(SyntaxKind.OverrideKeyword))
+            );
+
+        // 如果已经重写，则不生成
+        if (hasAwakeInitOverride) {
+            return null;
+        }
+
+        // 生成 awakeInit 方法重写
+        return MethodDeclaration(
+                PredefinedType(Token(SyntaxKind.VoidKeyword)),
+                Identifier("awakeInit")
+            )
+            .WithModifiers(
+                TokenList(
+                    Token(SyntaxKind.PublicKeyword),
+                    Token(SyntaxKind.OverrideKeyword)
+                )
+            )
+            .WithBody(
+                Block(
+                    // 调用基类的 awakeInit
+                    ExpressionStatement(
+                        InvocationExpression(
+                            MemberAccessExpression(
+                                SyntaxKind.SimpleMemberAccessExpression,
+                                BaseExpression(),
+                                IdentifierName("awakeInit")
+                            )
+                        )
+                    ),
+                    // 设置 instance 属性
+                    ExpressionStatement(
+                        AssignmentExpression(
+                            SyntaxKind.SimpleAssignmentExpression,
+                            IdentifierName("instance"),
+                            ThisExpression()
+                        )
+                    )
+                )
+            );
     }
 
 }

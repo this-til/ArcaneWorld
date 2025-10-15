@@ -7,14 +7,13 @@ using System.Linq;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
+using log4net;
 
 namespace EventBus;
 
 public interface IEventBus {
 
     ILog? log { get; }
-
-    LogLevel logLevel { get; }
 
     /// <summary>
     /// 注册一个事件监听者
@@ -51,8 +50,6 @@ public class EventBus : IEventBus {
 
     public ILog? log { get; }
 
-    public LogLevel logLevel { get; }
-
     protected readonly ReaderWriterLockSlim readerWriterLockSlim = new ReaderWriterLockSlim(LockRecursionPolicy.SupportsRecursion);
 
     /// <summary>
@@ -83,7 +80,6 @@ public class EventBus : IEventBus {
         convertAwaitList = new ReadOnlyCollection<IConvertAwait>(eventBusBuilder.convertAwaitList);
 
         log = eventBusBuilder.log;
-        logLevel = eventBusBuilder.logLevel;
 
         eventTriggerMap.Add(typeof(Event), new EventTrigger(this, typeof(Event)));
 
@@ -95,8 +91,8 @@ public class EventBus : IEventBus {
 
         if (eventRegistrantFilter != null) {
 
-            if (logLevel <= LogLevel.INFO) {
-                log?.info($"{registered} was filtered out by {eventRegistrantFilter}");
+            if (log?.IsInfoEnabled ?? false) {
+                log?.Info($"{registered} 被 {eventRegistrantFilter} 过滤掉了 ");
             }
 
             return;
@@ -242,8 +238,7 @@ public class EventBus : IEventBus {
 
             IEventInvokeFilter? eventTriggerFilter = eventTriggerFilterList.FirstOrDefault
             (
-                f => f.isFilter
-                (
+                f => f.isFilter(
                     this,
                     registered,
                     registeredType,
@@ -255,8 +250,8 @@ public class EventBus : IEventBus {
 
             if (eventTriggerFilter != null) {
 
-                if (logLevel <= LogLevel.INFO) {
-                    log?.info($"{registeredType}.{methodInfo} was filtered out by {eventTriggerFilter}");
+                if (log?.IsInfoEnabled ?? false) {
+                    log?.Info($"{registeredType}.{methodInfo} was filtered out by {eventTriggerFilter}");
                 }
 
                 continue;
@@ -267,8 +262,7 @@ public class EventBus : IEventBus {
             IEventInvoke? eventInvoke = eventTriggerFactoryList
                 .Select
                 (
-                    f => f.create
-                    (
+                    f => f.create(
                         this,
                         registered,
                         eventType,
@@ -281,8 +275,8 @@ public class EventBus : IEventBus {
 
             if (eventInvoke == null) {
 
-                if (logLevel <= LogLevel.INFO) {
-                    log?.info($"{registeredType}.{methodInfo} was not created {nameof(IEventInvoke)}");
+                if (log?.IsInfoEnabled ?? false) {
+                    log?.Info($"{registeredType}.{methodInfo} was not created {nameof(IEventInvoke)}");
                 }
 
                 continue;
@@ -333,10 +327,10 @@ public class EventBus : IEventBus {
 
     public Event onEvent(Event @event) {
         if (@event is IAsyncEvent) {
-            throw new NotSupportedException($"the {@event} is {nameof(IAsyncEvent)}, use onAsyncEvent instead");
+            throw new NotSupportedException($"事件 {@event.GetType()} 是 {nameof(IAsyncEvent)}, 请使用 {nameof(onEventAsync)}()");
         }
         if (@event is IYieldEvent) {
-            throw new NotSupportedException($"the {@event} is {nameof(IYieldEvent)}, use onYieldEvent instead");
+            throw new NotSupportedException($"事件 {@event.GetType()} 是 {nameof(IYieldEvent)}, 请使用 {nameof(onEventYield)}()");
         }
         getOrDerivationTrigger(@event.GetType()).onEvent(@event);
         return @event;
@@ -355,8 +349,7 @@ public class EventBus : IEventBus {
         _ = this.eventExceptionHandleList
             .FirstOrDefault
             (
-                h => h.doCatch
-                (
+                h => h.doCatch(
                     this,
                     eventInvoke,
                     @event,
@@ -373,8 +366,7 @@ public class EventBus : IEventBus {
 
         Type key = obj.GetType();
 
-        IConvertAwait? convertAwait = convertAwaitMap.GetOrAdd
-        (
+        IConvertAwait? convertAwait = convertAwaitMap.GetOrAdd(
             key,
             type => convertAwaitList.FirstOrDefault
             (
@@ -467,9 +459,13 @@ public class EventBus : IEventBus {
             }
         }
 
-        public async Task asyncInvoke(Event @event, IEventInvoke eventInvoke) {
+        public async Task asyncInvoke(Event @event, IAsyncEvent asyncEvent, IEventInvoke eventInvoke) {
 
             try {
+
+                if (asyncEvent.token.IsCancellationRequested) {
+                    return;
+                }
 
                 object? invoke = eventInvoke.invoke(@event);
                 IGetAwaiter? getAwaiter = eventBus.getAwaiter(invoke);
@@ -487,6 +483,11 @@ public class EventBus : IEventBus {
 
             Event @event = asyncEvent.toEvent;
             ICancellations? iCancellations = asyncEvent as ICancellations;
+            CancellationToken asyncEventToken = asyncEvent.token;
+
+            if (asyncEventToken.IsCancellationRequested) {
+                return;
+            }
 
             try {
                 Interlocked.Increment(ref callCounter);
@@ -504,26 +505,25 @@ public class EventBus : IEventBus {
                                     (
                                         p.Value.Select
                                         (
-                                            eventInvoke => asyncInvoke(@event, eventInvoke)
+                                            eventInvoke => asyncInvoke(@event, asyncEvent, eventInvoke)
                                         )
                                     );
 
                                 }
 
-                                return Task.Run
-                                (
+                                return Task.Run(
                                     async () => {
                                         foreach (IEventInvoke eventInvoke in p.Value) {
-                                            if (asyncEvent.token.IsCancellationRequested) {
+                                            if (asyncEventToken.IsCancellationRequested) {
                                                 break;
                                             }
                                             if (iCancellations?.isCancellations() ?? false) {
                                                 break;
                                             }
-                                            await asyncInvoke(@event, eventInvoke);
+                                            await asyncInvoke(@event, asyncEvent, eventInvoke);
                                         }
                                     },
-                                    asyncEvent.token
+                                    asyncEventToken
                                 );
 
                             }
@@ -581,6 +581,9 @@ public class EventBus : IEventBus {
 
                         try {
                             if (!enumerator.MoveNext()) {
+                                break;
+                            }
+                            if (iCancellations?.isCancellations() ?? false) {
                                 break;
                             }
                         }
@@ -654,8 +657,6 @@ public class EventBus : IEventBus {
         }
 
         public ILog? log;
-
-        public LogLevel logLevel = LogLevel.INFO;
 
     }
 

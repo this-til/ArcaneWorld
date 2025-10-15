@@ -26,14 +26,14 @@ public class RegisterBasicsGenerator : RegisterManageGenerator {
         var setupMethod = classDeclarationSyntax.Members
             .OfType<MethodDeclarationSyntax>()
             .FirstOrDefault(method => method.Identifier.ValueText == SetUpMethodName);
-        
+
         // 如果没有找到 setup 方法，创建一个虚拟的空方法体用于后续处理
         if (setupMethod == null) {
             return MethodDeclaration(PredefinedType(Token(SyntaxKind.VoidKeyword)), Identifier(SetUpMethodName))
                 .WithModifiers(TokenList(Token(SyntaxKind.PublicKeyword), Token(SyntaxKind.OverrideKeyword)))
                 .WithBody(Block()); // 空方法体
         }
-        
+
         return setupMethod;
     }
 
@@ -74,14 +74,26 @@ public class RegisterBasicsGenerator : RegisterManageGenerator {
         // 对于 RegisterBasics，setup 方法不是必需的
         if (setUpMethodDeclarationSyntax is null || setUpMethodDeclarationSyntax.Body is null) {
             // 如果没有 setup 方法或方法体为空，创建一个空的字段定义列表
-            GenerateCode(sourceContext, classSymbol, classDeclarationSyntax, 
+            GenerateCode(
+                sourceContext,
+                classSymbol,
+                classDeclarationSyntax,
                 MethodDeclaration(PredefinedType(Token(SyntaxKind.VoidKeyword)), Identifier(SetUpMethodName))
-                    .WithBody(Block()), 
-                semanticModel, constraintType);
+                    .WithBody(Block()),
+                semanticModel,
+                constraintType
+            );
             return;
         }
 
-        GenerateCode(sourceContext, classSymbol, classDeclarationSyntax, setUpMethodDeclarationSyntax, semanticModel, constraintType);
+        GenerateCode(
+            sourceContext,
+            classSymbol,
+            classDeclarationSyntax,
+            setUpMethodDeclarationSyntax,
+            semanticModel,
+            constraintType
+        );
     }
 
     protected override string GetGeneratedMethodName() {
@@ -96,8 +108,10 @@ public class RegisterBasicsGenerator : RegisterManageGenerator {
         return filteredFieldDefinition.Select(
                 f => {
                     // 根据 IsNullable 决定类型名称
-                    string typeName = f.IsNullable ? f.Type + "?" : f.Type;
-                    
+                    string typeName = f.IsNullable
+                        ? f.Type + "?"
+                        : f.Type;
+
                     var property = PropertyDeclaration(
                             IdentifierName(typeName),
                             Identifier(f.Name)
@@ -148,67 +162,13 @@ public class RegisterBasicsGenerator : RegisterManageGenerator {
             )
             .ToArray<MemberDeclarationSyntax>();
     }
-    
-    /*protected override StatementSyntax[] GenerateReturnStatements(List<(string name, string type, string comment)> filteredFieldDefinition) {
-        return filteredFieldDefinition.Select(
-                f => Block(
-                    // 如果 name 为空，则设置 name
-                    IfStatement(
-                        BinaryExpression(
-                            SyntaxKind.EqualsExpression,
-                            MemberAccessExpression(
-                                SyntaxKind.SimpleMemberAccessExpression,
-                                IdentifierName(f.name),
-                                IdentifierName("name")
-                            ),
-                            LiteralExpression(SyntaxKind.NullLiteralExpression)
-                        ),
-                        ExpressionStatement(
-                            AssignmentExpression(
-                                SyntaxKind.SimpleAssignmentExpression,
-                                MemberAccessExpression(
-                                    SyntaxKind.SimpleMemberAccessExpression,
-                                    IdentifierName(f.name),
-                                    IdentifierName("name")
-                                ),
-                                ObjectCreationExpression(IdentifierName("ResourceLocation"))
-                                    .WithArgumentList(
-                                        ArgumentList(
-                                            SeparatedList<ArgumentSyntax>(
-                                                new[] {
-                                                    Argument(
-                                                        MemberAccessExpression(
-                                                            SyntaxKind.SimpleMemberAccessExpression,
-                                                            IdentifierName("name"),
-                                                            IdentifierName("domain")
-                                                        )
-                                                    ),
-                                                    Argument(
-                                                        LiteralExpression(
-                                                            SyntaxKind.StringLiteralExpression,
-                                                            Literal($"{f.name}")
-                                                        )
-                                                    )
-                                                }
-                                            )
-                                        )
-                                    )
-                            )
-                        )
-                    ),
-                    // 空值检查并返回
-                    IfStatement(
-                        BinaryExpression(
-                            SyntaxKind.NotEqualsExpression,
-                            IdentifierName(f.name),
-                            LiteralExpression(SyntaxKind.NullLiteralExpression)
-                        ),
-                        YieldStatement(SyntaxKind.YieldReturnStatement)
-                            .WithExpression(IdentifierName(f.name))
-                    )
-                )
-            )
-            .ToArray<StatementSyntax>();
-    }*/
+
+    protected override MemberDeclarationSyntax? GenerateAwakeInitOverride(INamedTypeSymbol classSymbol, ClassDeclarationSyntax classDeclarationSyntax) {
+        return null;
+    }
+
+    protected override MemberDeclarationSyntax? GenerateInstanceProperty(INamedTypeSymbol classSymbol) {
+        return null;
+    }
 
 }

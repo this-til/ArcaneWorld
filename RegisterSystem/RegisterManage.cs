@@ -95,7 +95,7 @@ public abstract class RegisterManage : IComparable<RegisterManage> {
                             registerBasics = (RegisterBasics)Activator.CreateInstance(t.type)
                         }
                     )
-                    .Exception(e => registerSystem.log?.error($"在 RegisterManage 中创建 RegisterBasics 实例时发生异常，类型: {GetType().Name}", e))
+                    .Exception(e => { if (registerSystem.log?.IsErrorEnabled ?? false) registerSystem.log?.Error($"调用 {GetType()}.getDefaultRegisterItem() 中创建 RegisterBasics 实例时出现异常：", e); })
                     .NotNull()
                     .Peek(
                         t => {
@@ -103,7 +103,7 @@ public abstract class RegisterManage : IComparable<RegisterManage> {
                             (t.memberInfo as FieldInfo)?.SetValue(null, t.registerBasics);
                         }
                     )
-                    .Exception(e => registerSystem.log?.error($"在 RegisterManage 中设置静态属性或字段值时发生异常，成员: {GetType().Name}", e))
+                    .Exception(e => { if (registerSystem.log?.IsErrorEnabled ?? false) registerSystem.log?.Error($"调用 {GetType()}.getDefaultRegisterItem() 中设置静态属性或字段值时出现异常：", e); })
                     .NotNull()
             )
             .Peek(t => t.registerBasics.name ??= new ResourceLocation(name.domain, t.memberInfo.Name))

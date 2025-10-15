@@ -30,8 +30,7 @@ public partial  class RegisterSystemIntegrationTests {
             managedAssemblySet = [
                 _testAssembly
             ],
-            log = _testLog,
-            logLevel = LogLevel.DEBUG
+            log = _testLog
         };
 
         // Assert
@@ -46,8 +45,7 @@ public partial  class RegisterSystemIntegrationTests {
             managedAssemblySet = [
                 _testAssembly
             ],
-            log = _testLog,
-            logLevel = LogLevel.DEBUG
+            log = _testLog
         };
 
         // Act
@@ -66,17 +64,16 @@ public partial  class RegisterSystemIntegrationTests {
             managedAssemblySet = [
                 _testAssembly
             ],
-            log = _testLog,
-            logLevel = LogLevel.DEBUG
+            log = _testLog
         };
 
         // Act
         registerSystem.initRegisterSystem();
 
         // Assert
-        registerSystem.registerManageTypeList.Should().NotBeNull();
-        registerSystem.registerManageTypeList.Should().Contain(typeof(TestRegisterManage));
-        registerSystem.registerManageTypeList.Should().Contain(typeof(DerivedTestRegisterManage));
+        registerSystem.manageTypeList.Should().NotBeNull();
+        registerSystem.manageTypeList.Should().Contain(typeof(TestRegisterManage));
+        registerSystem.manageTypeList.Should().Contain(typeof(DerivedTestRegisterManage));
     }
 
     [Fact]
@@ -86,8 +83,7 @@ public partial  class RegisterSystemIntegrationTests {
             managedAssemblySet = [
                 _testAssembly
             ],
-            log = _testLog,
-            logLevel = LogLevel.DEBUG
+            log = _testLog
         };
 
         // Act
@@ -107,8 +103,7 @@ public partial  class RegisterSystemIntegrationTests {
             managedAssemblySet = [
                 _testAssembly
             ],
-            log = _testLog,
-            logLevel = LogLevel.DEBUG
+            log = _testLog
         };
 
         // Act
@@ -128,8 +123,7 @@ public partial  class RegisterSystemIntegrationTests {
             managedAssemblySet = [
                 _testAssembly
             ],
-            log = _testLog,
-            logLevel = LogLevel.DEBUG
+            log = _testLog
         };
 
         // Act
@@ -153,8 +147,7 @@ public partial  class RegisterSystemIntegrationTests {
             managedAssemblySet = [
                 _testAssembly
             ],
-            log = _testLog,
-            logLevel = LogLevel.DEBUG
+            log = _testLog
         };
 
         // Act
@@ -173,8 +166,7 @@ public partial  class RegisterSystemIntegrationTests {
             managedAssemblySet = [
                 _testAssembly
             ],
-            log = _testLog,
-            logLevel = LogLevel.DEBUG
+            log = _testLog
         };
 
         // Act
@@ -193,8 +185,7 @@ public partial  class RegisterSystemIntegrationTests {
             managedAssemblySet = [
                 _testAssembly
             ],
-            log = _testLog,
-            logLevel = LogLevel.DEBUG
+            log = _testLog
         };
 
         // Act
@@ -212,8 +203,7 @@ public partial  class RegisterSystemIntegrationTests {
             managedAssemblySet = [
                 _testAssembly
             ],
-            log = _testLog,
-            logLevel = LogLevel.DEBUG
+            log = _testLog
         };
 
         // Act
@@ -234,8 +224,7 @@ public partial  class RegisterSystemIntegrationTests {
             managedAssemblySet = [
                 _testAssembly
             ],
-            log = _testLog,
-            logLevel = LogLevel.DEBUG
+            log = _testLog
         };
 
         // Act
@@ -255,8 +244,7 @@ public partial  class RegisterSystemIntegrationTests {
             managedAssemblySet = [
                 _testAssembly
             ],
-            log = _testLog,
-            logLevel = LogLevel.DEBUG
+            log = _testLog
         };
 
         // Act
@@ -274,8 +262,7 @@ public partial  class RegisterSystemIntegrationTests {
             managedAssemblySet = [
                 _testAssembly
             ],
-            log = _testLog,
-            logLevel = LogLevel.DEBUG
+            log = _testLog
         };
         registerSystem.initRegisterSystem();
 
@@ -294,8 +281,7 @@ public partial  class RegisterSystemIntegrationTests {
             managedAssemblySet = [
                 _testAssembly
             ],
-            log = _testLog,
-            logLevel = LogLevel.DEBUG
+            log = _testLog
         };
         registerSystem.initRegisterSystem();
 
@@ -313,8 +299,7 @@ public partial  class RegisterSystemIntegrationTests {
             managedAssemblySet = [
                 _testAssembly
             ],
-            log = _testLog,
-            logLevel = LogLevel.DEBUG
+            log = _testLog
         };
         registerSystem.initRegisterSystem();
 
@@ -333,8 +318,7 @@ public partial  class RegisterSystemIntegrationTests {
             managedAssemblySet = [
                 _testAssembly
             ],
-            log = _testLog,
-            logLevel = LogLevel.DEBUG
+            log = _testLog
         };
         registerSystem.initRegisterSystem();
 
@@ -353,8 +337,7 @@ public partial  class RegisterSystemIntegrationTests {
             managedAssemblySet = [
                 _testAssembly
             ],
-            log = _testLog,
-            logLevel = LogLevel.DEBUG
+            log = _testLog
         };
         registerSystem.initRegisterSystem();
 
@@ -373,8 +356,7 @@ public partial  class RegisterSystemIntegrationTests {
             managedAssemblySet = [
                 _testAssembly
             ],
-            log = _testLog,
-            logLevel = LogLevel.DEBUG
+            log = _testLog
         };
         registerSystem.initRegisterSystem();
 
@@ -395,8 +377,7 @@ public partial  class RegisterSystemIntegrationTests {
             managedAssemblySet = [
                 _testAssembly
             ],
-            log = _testLog,
-            logLevel = LogLevel.DEBUG
+            log = _testLog
         };
         registerSystem.initRegisterSystem();
 
@@ -410,35 +391,13 @@ public partial  class RegisterSystemIntegrationTests {
     }
 
     [Fact]
-    public void logLevel_ShouldFilterLogMessages() {
-        // Arrange
-        RegisterSystem registerSystem = new RegisterSystem {
-            managedAssemblySet = [
-                _testAssembly
-            ],
-            log = _testLog,
-            logLevel = LogLevel.WARN
-        };
-
-        // Act
-        registerSystem.initRegisterSystem();
-
-        // Assert
-        // 验证只有 WARN 和 ERROR 级别的日志被记录
-        _testLog.DebugMessages.Should().BeEmpty();
-        _testLog.InfoMessages.Should().BeEmpty();
-        // WARN 和 ERROR 消息可能存在，取决于初始化过程
-    }
-
-    [Fact]
     public void initRegisterSystem_WithNullLog_ShouldNotThrow() {
         // Arrange
         RegisterSystem registerSystem = new RegisterSystem {
             managedAssemblySet = [
                 _testAssembly
             ],
-            log = null,
-            logLevel = LogLevel.DEBUG
+            log = null
         };
 
         // Act & Assert
@@ -453,8 +412,7 @@ public partial  class RegisterSystemIntegrationTests {
             managedAssemblySet = [
                 _testAssembly
             ],
-            log = _testLog,
-            logLevel = LogLevel.DEBUG
+            log = _testLog
         };
 
         // Act
@@ -479,8 +437,7 @@ public partial  class RegisterSystemIntegrationTests {
             managedAssemblySet = [
                 _testAssembly
             ],
-            log = _testLog,
-            logLevel = LogLevel.DEBUG
+            log = _testLog
         };
 
         // Act
@@ -505,8 +462,7 @@ public partial  class RegisterSystemIntegrationTests {
             managedAssemblySet = [
                 _testAssembly
             ],
-            log = _testLog,
-            logLevel = LogLevel.DEBUG
+            log = _testLog
         };
 
         // Act
@@ -529,8 +485,7 @@ public partial  class RegisterSystemIntegrationTests {
             managedAssemblySet = [
                 _testAssembly
             ],
-            log = _testLog,
-            logLevel = LogLevel.DEBUG
+            log = _testLog
         };
 
         // Act
@@ -555,8 +510,7 @@ public partial  class RegisterSystemIntegrationTests {
             managedAssemblySet = [
                 _testAssembly
             ],
-            log = _testLog,
-            logLevel = LogLevel.DEBUG
+            log = _testLog
         };
 
         // Act
@@ -583,8 +537,7 @@ public partial  class RegisterSystemIntegrationTests {
             managedAssemblySet = [
                 _testAssembly
             ],
-            log = _testLog,
-            logLevel = LogLevel.DEBUG
+            log = _testLog
         };
 
         // Act
@@ -608,8 +561,7 @@ public partial  class RegisterSystemIntegrationTests {
             managedAssemblySet = [
                 _testAssembly
             ],
-            log = _testLog,
-            logLevel = LogLevel.DEBUG
+            log = _testLog
         };
 
         // Act
@@ -631,8 +583,7 @@ public partial  class RegisterSystemIntegrationTests {
             managedAssemblySet = [
                 _testAssembly
             ],
-            log = _testLog,
-            logLevel = LogLevel.DEBUG
+            log = _testLog
         };
 
         // Act
@@ -663,8 +614,7 @@ public partial  class RegisterSystemIntegrationTests {
             managedAssemblySet = [
                 _testAssembly
             ],
-            log = _testLog,
-            logLevel = LogLevel.DEBUG
+            log = _testLog
         };
 
         // Act
@@ -697,8 +647,7 @@ public partial  class RegisterSystemIntegrationTests {
             managedAssemblySet = [
                 _testAssembly
             ],
-            log = _testLog,
-            logLevel = LogLevel.DEBUG
+            log = _testLog
         };
 
         // Act
@@ -719,8 +668,7 @@ public partial  class RegisterSystemIntegrationTests {
             managedAssemblySet = [
                 _testAssembly
             ],
-            log = _testLog,
-            logLevel = LogLevel.DEBUG
+            log = _testLog
         };
 
         // Act
@@ -748,8 +696,7 @@ public partial  class RegisterSystemIntegrationTests {
             managedAssemblySet = [
                 _testAssembly
             ],
-            log = _testLog,
-            logLevel = LogLevel.DEBUG
+            log = _testLog
         };
 
         // Act
@@ -771,8 +718,7 @@ public partial  class RegisterSystemIntegrationTests {
             managedAssemblySet = [
                 _testAssembly
             ],
-            log = _testLog,
-            logLevel = LogLevel.DEBUG
+            log = _testLog
         };
 
         // Act
@@ -798,8 +744,7 @@ public partial  class RegisterSystemIntegrationTests {
             managedAssemblySet = [
                 _testAssembly
             ],
-            log = _testLog,
-            logLevel = LogLevel.DEBUG
+            log = _testLog
         };
 
         // Act
@@ -834,8 +779,7 @@ public class RegisterSystemErrorHandlingTests {
         var registerSystem = new RegisterSystem {
             managedAssemblySet = [
             ],
-            log = _testLog,
-            logLevel = LogLevel.DEBUG
+            log = _testLog
         };
 
         // Act
@@ -854,8 +798,7 @@ public class RegisterSystemErrorHandlingTests {
             managedAssemblySet = [
                 _testAssembly
             ],
-            log = _testLog,
-            logLevel = LogLevel.DEBUG
+            log = _testLog
         };
         registerSystem.initRegisterSystem();
 
@@ -873,8 +816,7 @@ public class RegisterSystemErrorHandlingTests {
             managedAssemblySet = [
                 _testAssembly
             ],
-            log = _testLog,
-            logLevel = LogLevel.DEBUG
+            log = _testLog
         };
         registerSystem.initRegisterSystem();
 

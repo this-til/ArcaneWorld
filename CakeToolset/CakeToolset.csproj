@@ -1,12 +1,23 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Godot.NET.Sdk/4.5.0">
 
     <PropertyGroup>
-        <TargetFramework>netstandard2.1</TargetFramework>
-        <LangVersion>13</LangVersion>
-        <ImplicitUsings>enable</ImplicitUsings>
+        <TargetFramework>net9.0</TargetFramework>
+        <TargetFramework Condition=" '$(GodotTargetPlatform)' == 'android' ">net9.0</TargetFramework>
+        <EnableDynamicLoading>true</EnableDynamicLoading>
+        <ImplicitUsings>true</ImplicitUsings>
         <Nullable>enable</Nullable>
+        <LangVersion>13</LangVersion>
+        <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     </PropertyGroup>
 
+    <ItemGroup>
+        <Compile Remove=".godot\**" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <EmbeddedResource Remove=".godot\**" />
+    </ItemGroup>
+    
     <ItemGroup>
         <ProjectReference Include="../RegisterSystem/RegisterSystem.csproj"/>
     </ItemGroup>

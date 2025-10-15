@@ -16,7 +16,7 @@ public static class ArrayExtendMethod {
     /// </summary>
     public static bool InArray<T>(this T[]? list, int at) => list is not null && at >= 0 && at < list.Length;
 
-    public static int DepthHashCode<T>(this T[] array) {
+    public static int DepthHashCode<T>(this T[]? array) {
         if (array is null) {
             return 0;
         }

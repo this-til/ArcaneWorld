@@ -44,7 +44,7 @@ public class ValueListTests
         var value = new Value<string?>((string?)null);
 
         // Act
-        valueList.Add(value);
+        valueList.Add(value!);
 
         // Assert
         valueList.allStorage.Should().HaveCount(1);
@@ -101,7 +101,7 @@ public class ValueListTests
         var values = new[]
         {
             new Value<string>("valid"),
-            new Value<string?>((string?)null),
+            new Value<string?>((string?)null)!,
             new Value<string>("another")
         };
 
@@ -185,13 +185,13 @@ public class ValueListTests
         // Act
         valueList.Add(value1);
         valueList.Add(value2);
-        valueList.Add(value3);
+        valueList.Add(value3!);
 
         // Assert
         valueList.allStorage.Should().HaveCount(3);
         valueList.allStorage.Should().Contain(value1);
         valueList.allStorage.Should().Contain(value2);
-        valueList.allStorage.Should().Contain(value3);
+        valueList.allStorage.Should().Contain(value3!);
     }
 
     [Fact]

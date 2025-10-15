@@ -20,7 +20,9 @@ public class LogExceptionHandle : IEventExceptionHandle {
 
     // ReSharper disable Unity.PerformanceAnalysis
     public bool doCatch(IEventBus iEventBus, IEventInvoke eventInvoke, Event @event, Exception exception) {
-        iEventBus.log?.error($"事件处理异常 - 处理器: {eventInvoke}, 事件: {@event.GetType().Name}, 异常: {exception.Message}", exception);
+        if (iEventBus.log?.IsErrorEnabled ?? false) {
+            iEventBus.log?.Error($"事件处理异常 - 处理器: {eventInvoke}, 事件: {@event.GetType()}, 异常:", exception);
+        }
         return true;
     }
 

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using CommonUtil.Extensions;
+using log4net;
 
 namespace RegisterSystem;
 
@@ -24,7 +25,7 @@ public partial class RegisterSystem {
 
     public IReadOnlyDictionary<Assembly, IReadOnlyList<RegisterManage>> managedRegisterManageMap { get; private set; } = null!;
 
-    public IReadOnlyList<Type> registerManageTypeList { get; private set; } = null!;
+    public IReadOnlyList<Type> manageTypeList { get; private set; } = null!;
 
     public IReadOnlyList<RegisterManage> manageList { get; private set; } = null!;
 
@@ -63,9 +64,7 @@ public partial class RegisterSystem {
 
     public ILog? log {
         get => _rawLog;
-        init => _rawLog = value != null
-            ? new LogWrapper(value, this)
-            : null;
+        init => _rawLog = value;
     }
 
     public void initRegisterSystem() {
@@ -74,14 +73,17 @@ public partial class RegisterSystem {
             .Where(Util.isEffective)
             .ToList();
 
-        registerManageTypeList = allType
+        manageTypeList = allType
             .Where(typeof(RegisterManage).IsAssignableFrom)
             .Where(t => !t.IsAbstract)
             .Where(t => t.BaseType is not null)
-            .Where(t => t.BaseType!.IsAbstract, t => log?.warn($"{t} the base type {t.BaseType} it must be abstract"))
+            .Where(
+                t => t.BaseType!.IsAbstract,
+                t => log?.Warn($"{t} 其基类 {t.BaseType} 必须是抽象的，系统将忽视它")
+            )
             .ToList();
 
-        managedRegisterManageTypeMap = registerManageTypeList.ClassifiedCollection(
+        managedRegisterManageTypeMap = manageTypeList.ClassifiedCollection(
                 r => r.Assembly,
                 r => r,
                 a => new List<Type>(),
@@ -90,10 +92,10 @@ public partial class RegisterSystem {
             .ToDictionary(e => e.Key, IReadOnlyList<Type> (e) => e.Value.AsReadOnly())
             .ToReadOnlyDictionary();
 
-        manageList = registerManageTypeList
+        manageList = manageTypeList
             .TrySelect(
                 t => (RegisterManage)Activator.CreateInstance(t),
-                (t, e) => log?.error(e)
+                (t, e) => log?.Error("创建 {t} 实例时出现异常", e)
             )
             .NotNull()
             .Peek(m => m.registerSystem = this)
@@ -186,18 +188,24 @@ public partial class RegisterSystem {
             .End();
 
         manageList
-            .TryPeek(m => m.awakeInit(), (m, e) => log?.error(e))
+            .TryPeek(
+                m => m.awakeInit(),
+                (m, e) => log?.Error($"调用 {m.GetType()}.awakeInit() 时出现异常：", e)
+            )
             .End();
 
         manageList
-            .TryPeek(m => m.setup(), (m, e) => log?.error(e))
+            .TryPeek(
+                m => m.setup(),
+                (m, e) => log?.Error($"调用 {m.GetType()}.setup() 时出现异常：", e)
+            )
             .End();
 
         List<RegisterBasics> registerItemList = manageList
             .TrySelectMany(
                 m => m.getDefaultRegisterItem()
                     .Select(t => (registerManage: m, t.registerBasics, t.name)),
-                (m, e) => log?.error(e)
+                (m, e) => log?.Error($"调用 {m.GetType()}.getDefaultRegisterItem() 时出现异常：", e)
             )
             .Peek(t => t.registerBasics._name = new ResourceLocation(t.registerManage.name.domain, t.name))
             .Peek(t => t.registerBasics.registerManage = t.registerManage)
@@ -210,14 +218,17 @@ public partial class RegisterSystem {
         unifyRegister(registerItemList);
 
         manageList
-            .TryPeek(m => m.init(), (m, e) => log?.error(e))
+            .TryPeek(
+                m => m.init(),
+                (m, e) => log?.Error($"调用 {m.GetType()}.init() 时出现异常：", e)
+            )
             .End();
 
         registerItemList = manageList
             .TrySelectMany(
                 m => m.getSecondDefaultRegisterItem()
                     .Select(t => (registerManage: m, t.registerBasics, t.name)),
-                (m, e) => log?.error(e)
+                (m, e) => log?.Error($"调用 {m.GetType()}.getSecondDefaultRegisterItem() 时出现异常：", e)
             )
             .Peek(t => t.registerBasics._name = new ResourceLocation(t.registerManage.name.domain, t.name))
             .Peek(t => t.registerBasics.registerManage = t.registerManage)
@@ -230,28 +241,49 @@ public partial class RegisterSystem {
         unifyRegister(registerItemList);
 
         manageList
-            .TryPeek(m => m.initSecond(), (m, e) => log?.error(e))
+            .TryPeek(
+                m => m.initSecond(),
+                (m, e) => log?.Error($"调用 {m.GetType()}.initSecond() 时出现异常：", e)
+            )
             .End();
 
         manageList
-            .TryPeek(m => m.initThird(), (m, e) => log?.error(e))
+            .TryPeek(
+                m => m.initThird(),
+                (m, e) => log?.Error($"调用 {m.GetType()}.initThird() 时出现异常：", e)
+            )
             .End();
 
         _registerBasicsSortedSet
-            .TryPeek(r => r.initEnd(), (r, e) => log?.error(e))
+            .TryPeek(
+                r => r.initEnd(),
+                (r, e) => log?.Error($"调用 ({r.GetType()}-{r.name}).initEnd() 时出现异常：", e)
+            )
             .End();
 
         manageList
-            .TryPeek(m => m.initEnd(), (m, e) => log?.error(e))
+            .TryPeek(
+                m => m.initEnd(),
+                (m, e) => log?.Error($"调用 {m.GetType()}.initEnd() 时出现异常：", e)
+            )
             .End();
     }
 
     protected void unifyRegister(List<RegisterBasics> registerBasicsList) {
         registerBasicsList = registerBasicsList
-            .Where(r => r.registerManage is not null, r => log?.warn($"{r.name} 缺少关联的 RegisterManage: {r.GetType().Name}"))
+            .Where(
+                r => r.registerManage is not null,
+                r => log?.Warn($"注册项：{r.GetType()}-{r.name} 缺少RegisterManage，系统将忽略它")
+            )
             .Peek(r => r.registerSystem = this)
-            .TryPeek(r => r.awakeInit(), (r, e) => log?.error(e))
-            .TryPeek(r => r.setup(), (r, e) => log?.error(e))
+            .TryPeek(
+                r => r.awakeInit(),
+                (r, e) => log?.Error($"调用 ({r.GetType()}-{r.name}).awakeInit() 时出现异常：", e)
+            )
+            .TryPeek(
+                r => r.setup(),
+                (r, e) => log?.Error($"调用 ({r.GetType()}-{r.name}).setup() 时出现异常：", e)
+            )
             .Peek(r => r.registerManage.put(r, false))
             .Peek(r => _registerBasicsSortedSet.Add(r))
             .ToList();
@@ -269,13 +301,19 @@ public partial class RegisterSystem {
             .Peek(t => t.son.basics = t.basics)
             .Select(t => t.son)
             .Peek(r => r.registerManage ??= getRegisterManageOfRegisterType(r.GetType())!)
-            .Where(r => r.registerManage is not null, r => log?.warn($"{r.GetType().Name}-{r.name} 丢失RegisterManage"))
+            .Where(
+                r => r.registerManage is not null,
+                r => log?.Warn($"{r.GetType()}-{r.name} 丢失RegisterManage，系统将忽略它")
+            )
             .Peek(r => r.registerSystem = this)
             .Distinct()
             .ToList();
 
         registerBasicsList
-            .TryPeek(r => r.init(), (r, e) => log?.error(e))
+            .TryPeek(
+                r => r.init(),
+                (r, e) => log?.Error($"调用 ({r.GetType()}-{r.name}).init() 时出现异常：", e)
+            )
             .End();
 
         if (additionalList.Count > 0) {

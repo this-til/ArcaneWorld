@@ -42,7 +42,10 @@ public partial class Plugin : EditorPlugin {
             ClassNameAttribute? target = item.GetCustomAttribute<ClassNameAttribute>();
             // GD.Print("target: ", item);
 
-            if (target == null) continue;
+            if (target == null) {
+                continue;
+            }
+            
             if (!item.IsSubclassOf(typeof(Resource)) && !item.IsSubclassOf(typeof(Node))) {
                 GD.Print($"CustomTypes can be Godot.Resource or Godot.Node, but not {item}!");
                 continue;

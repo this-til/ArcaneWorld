@@ -1,38 +1,50 @@
 <Project Sdk="Godot.NET.Sdk/4.5.0">
     <PropertyGroup>
-        <TargetFramework>net8.0</TargetFramework>
+        <TargetFramework>net9.0</TargetFramework>
         <TargetFramework Condition=" '$(GodotTargetPlatform)' == 'android' ">net9.0</TargetFramework>
         <EnableDynamicLoading>true</EnableDynamicLoading>
         <ImplicitUsings>true</ImplicitUsings>
         <Nullable>enable</Nullable>
-        <LangVersion>13</LangVersion>
+        <LangVersion>preview</LangVersion>
         <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     </PropertyGroup>
 
     <ItemGroup>
         <ProjectReference Include="../EventBus/EventBus.csproj"/>
         <ProjectReference Include="../RegisterSystem/RegisterSystem.csproj"/>
-        <ProjectReference Include="..\RegisterSystem.Generators\RegisterSystem.Generators.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false"/>
-        <ProjectReference Include="../GDTask/GDTask.csproj"/>
+        <ProjectReference Include="../RegisterSystem.Generators/RegisterSystem.Generators.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false"/>
+        <ProjectReference Include="../ArcaneWorld.Generators/ArcaneWorld.Generators.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false"/>
+        <ProjectReference Include="../GDTask/GDTask.csproj"/>  
+        <ProjectReference Include="../CakeToolset/CakeToolset.csproj"/>
     </ItemGroup>
 
     <ItemGroup>
         <PackageReference Include="FlexibleRequired.Analyzers" Version="1.0.0"/>
         <PackageReference Include="GodotSharp.SourceGenerators" Version="2.6.0"/>
         <PackageReference Include="Newtonsoft.Json" Version="13.0.4" />
+        <PackageReference Include="log4net" Version="3.0.1" />
+        <PackageReference Include="System.Configuration.ConfigurationManager" Version="8.0.1" />
     </ItemGroup>
 
     <ItemGroup>
-      <Folder Include="Mechanical\" />
-      <Folder Include="Recipe\" />
+      <Folder Include="Script\Recipe\" />
     </ItemGroup>
 
     <ItemGroup>
       <Compile Remove=".godot\**" />
+      <Compile Remove="Flow\**" />
+      <Compile Remove="Test\**" />
     </ItemGroup>
 
     <ItemGroup>
       <EmbeddedResource Remove=".godot\**" />
+      <EmbeddedResource Remove="Flow\**" />
+      <EmbeddedResource Remove="Test\**" />
     </ItemGroup>
 
+    <ItemGroup>
+      <Content Include="addons\resource_tree_generator\plugin.cfg" />
+      <Content Include="assembly_load.config.json" />
+    </ItemGroup>
+    
 </Project>
