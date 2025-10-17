@@ -241,7 +241,7 @@ public class AutoSerializeGenerator : IIncrementalGenerator {
                                 .WithArgumentList(
                                     ArgumentList(
                                         SingletonSeparatedList(
-                                            Argument(IdentifierName("jsonSerializer"))
+                                            Argument(IdentifierName("jsonSerializerOptions"))
                                         )
                                     )
                                 )
@@ -268,7 +268,7 @@ public class AutoSerializeGenerator : IIncrementalGenerator {
                                                     .WithArgumentList(
                                                         ArgumentList(
                                                             SingletonSeparatedList(
-                                                                Argument(IdentifierName("jsonSerializer"))
+                                                                Argument(IdentifierName("jsonSerializerOptions"))
                                                             )
                                                         )
                                                     )
@@ -288,7 +288,7 @@ public class AutoSerializeGenerator : IIncrementalGenerator {
                                         SeparatedList<ArgumentSyntax>(
                                             new[] {
                                                 Argument(IdentifierName("result")),
-                                                Argument(IdentifierName("jsonSerializer"))
+                                                Argument(IdentifierName("jsonSerializerOptions"))
                                             }
                                         )
                                     )
@@ -304,12 +304,15 @@ public class AutoSerializeGenerator : IIncrementalGenerator {
                 QualifiedName(
                     QualifiedName(
                         QualifiedName(
-                            IdentifierName("Newtonsoft"),
+                            QualifiedName(
+                                IdentifierName("System"),
+                                IdentifierName("Text")
+                            ),
                             IdentifierName("Json")
                         ),
-                        IdentifierName("Linq")
+                        IdentifierName("Nodes")
                     ),
-                    IdentifierName("JObject")
+                    IdentifierName("JsonObject")
                 ),
                 Identifier("serialize")
             )
@@ -327,15 +330,18 @@ public class AutoSerializeGenerator : IIncrementalGenerator {
                 ParameterList(
                     SingletonSeparatedList(
                         Parameter(
-                                Identifier("jsonSerializer")
+                                Identifier("jsonSerializerOptions")
                             )
                             .WithType(
                                 QualifiedName(
                                     QualifiedName(
-                                        IdentifierName("Newtonsoft"),
+                                        QualifiedName(
+                                            IdentifierName("System"),
+                                            IdentifierName("Text")
+                                        ),
                                         IdentifierName("Json")
                                     ),
-                                    IdentifierName("JsonSerializer")
+                                    IdentifierName("JsonSerializerOptions")
                                 )
                             )
                     )
@@ -373,7 +379,7 @@ public class AutoSerializeGenerator : IIncrementalGenerator {
                                         SeparatedList<ArgumentSyntax>(
                                             new[] {
                                                 Argument(IdentifierName("data")),
-                                                Argument(IdentifierName("jsonSerializer"))
+                                                Argument(IdentifierName("jsonSerializerOptions"))
                                             }
                                         )
                                     )
@@ -393,7 +399,7 @@ public class AutoSerializeGenerator : IIncrementalGenerator {
                                     SeparatedList<ArgumentSyntax>(
                                         new[] {
                                             Argument(IdentifierName("data")),
-                                            Argument(IdentifierName("jsonSerializer"))
+                                            Argument(IdentifierName("jsonSerializerOptions"))
                                         }
                                     )
                                 )
@@ -410,7 +416,7 @@ public class AutoSerializeGenerator : IIncrementalGenerator {
                                         SeparatedList<ArgumentSyntax>(
                                             new[] {
                                                 Argument(IdentifierName("data")),
-                                                Argument(IdentifierName("jsonSerializer"))
+                                                Argument(IdentifierName("jsonSerializerOptions"))
                                             }
                                         )
                                     )
@@ -446,24 +452,30 @@ public class AutoSerializeGenerator : IIncrementalGenerator {
                                     QualifiedName(
                                         QualifiedName(
                                             QualifiedName(
-                                                IdentifierName("Newtonsoft"),
+                                                QualifiedName(
+                                                    IdentifierName("System"),
+                                                    IdentifierName("Text")
+                                                ),
                                                 IdentifierName("Json")
                                             ),
-                                            IdentifierName("Linq")
+                                            IdentifierName("Nodes")
                                         ),
-                                        IdentifierName("JObject")
+                                        IdentifierName("JsonObject")
                                     )
                                 ),
                             Parameter(
-                                    Identifier("jsonSerializer")
+                                    Identifier("jsonSerializerOptions")
                                 )
                                 .WithType(
                                     QualifiedName(
                                         QualifiedName(
-                                            IdentifierName("Newtonsoft"),
+                                            QualifiedName(
+                                                IdentifierName("System"),
+                                                IdentifierName("Text")
+                                            ),
                                             IdentifierName("Json")
                                         ),
-                                        IdentifierName("JsonSerializer")
+                                        IdentifierName("JsonSerializerOptions")
                                     )
                                 )
                         }
@@ -502,7 +514,7 @@ public class AutoSerializeGenerator : IIncrementalGenerator {
                                                 .WithArgumentList(
                                                     ArgumentList(
                                                         SingletonSeparatedList(
-                                                            Argument(IdentifierName("jsonSerializer"))
+                                                            Argument(IdentifierName("jsonSerializerOptions"))
                                                         )
                                                     )
                                                 )
@@ -530,12 +542,15 @@ public class AutoSerializeGenerator : IIncrementalGenerator {
                                                     QualifiedName(
                                                         QualifiedName(
                                                             QualifiedName(
-                                                                IdentifierName("Newtonsoft"),
+                                                                QualifiedName(
+                                                                    IdentifierName("System"),
+                                                                    IdentifierName("Text")
+                                                                ),
                                                                 IdentifierName("Json")
                                                             ),
-                                                            IdentifierName("Linq")
+                                                            IdentifierName("Nodes")
                                                         ),
-                                                        IdentifierName("JObject")
+                                                        IdentifierName("JsonObject")
                                                     )
                                                 )
                                                 .WithArgumentList(ArgumentList())
@@ -581,7 +596,7 @@ public class AutoSerializeGenerator : IIncrementalGenerator {
                                 .WithArgumentList(
                                     ArgumentList(
                                         SingletonSeparatedList(
-                                            Argument(IdentifierName("jsonSerializer"))
+                                            Argument(IdentifierName("jsonSerializerOptions"))
                                         )
                                     )
                                 )
@@ -590,7 +605,7 @@ public class AutoSerializeGenerator : IIncrementalGenerator {
                 );
             }
             else {
-                // 使用 JToken.FromObject
+                // 使用 JsonSerializer.SerializeToNode
                 statements.Add(
                     ExpressionStatement(
                         AssignmentExpression(
@@ -616,14 +631,14 @@ public class AutoSerializeGenerator : IIncrementalGenerator {
                                         QualifiedName(
                                             QualifiedName(
                                                 QualifiedName(
-                                                    IdentifierName("Newtonsoft"),
-                                                    IdentifierName("Json")
+                                                    IdentifierName("System"),
+                                                    IdentifierName("Text")
                                                 ),
-                                                IdentifierName("Linq")
+                                                IdentifierName("Json")
                                             ),
-                                            IdentifierName("JToken")
+                                            IdentifierName("JsonSerializer")
                                         ),
-                                        IdentifierName("FromObject")
+                                        IdentifierName("SerializeToNode")
                                     )
                                 )
                                 .WithArgumentList(
@@ -631,7 +646,7 @@ public class AutoSerializeGenerator : IIncrementalGenerator {
                                         SeparatedList<ArgumentSyntax>(
                                             new[] {
                                                 Argument(IdentifierName(member.Name)),
-                                                Argument(IdentifierName("jsonSerializer"))
+                                                Argument(IdentifierName("jsonSerializerOptions"))
                                             }
                                         )
                                     )
@@ -653,12 +668,15 @@ public class AutoSerializeGenerator : IIncrementalGenerator {
                 QualifiedName(
                     QualifiedName(
                         QualifiedName(
-                            IdentifierName("Newtonsoft"),
+                            QualifiedName(
+                                IdentifierName("System"),
+                                IdentifierName("Text")
+                            ),
                             IdentifierName("Json")
                         ),
-                        IdentifierName("Linq")
+                        IdentifierName("Nodes")
                     ),
-                    IdentifierName("JObject")
+                    IdentifierName("JsonObject")
                 ),
                 Identifier("_serialize")
             )
@@ -676,15 +694,18 @@ public class AutoSerializeGenerator : IIncrementalGenerator {
                 ParameterList(
                     SingletonSeparatedList(
                         Parameter(
-                                Identifier("jsonSerializer")
+                                Identifier("jsonSerializerOptions")
                             )
                             .WithType(
                                 QualifiedName(
                                     QualifiedName(
-                                        IdentifierName("Newtonsoft"),
+                                        QualifiedName(
+                                            IdentifierName("System"),
+                                            IdentifierName("Text")
+                                        ),
                                         IdentifierName("Json")
                                     ),
-                                    IdentifierName("JsonSerializer")
+                                    IdentifierName("JsonSerializerOptions")
                                 )
                             )
                     )
@@ -714,7 +735,7 @@ public class AutoSerializeGenerator : IIncrementalGenerator {
                                 SeparatedList<ArgumentSyntax>(
                                     new[] {
                                         Argument(IdentifierName("data")),
-                                        Argument(IdentifierName("jsonSerializer"))
+                                        Argument(IdentifierName("jsonSerializerOptions"))
                                     }
                                 )
                             )
@@ -724,7 +745,7 @@ public class AutoSerializeGenerator : IIncrementalGenerator {
         }
 
         foreach (var member in classInfo.SaveFields) {
-            var variableName = $"{member.Name}Token";
+            var variableName = $"{member.Name}Node";
 
             statements.Add(
                 IfStatement(
@@ -732,7 +753,7 @@ public class AutoSerializeGenerator : IIncrementalGenerator {
                             MemberAccessExpression(
                                 SyntaxKind.SimpleMemberAccessExpression,
                                 IdentifierName("data"),
-                                IdentifierName("TryGetValue")
+                                IdentifierName("TryGetPropertyValue")
                             )
                         )
                         .WithArgumentList(
@@ -762,42 +783,53 @@ public class AutoSerializeGenerator : IIncrementalGenerator {
                         // 检查字段类型是否实现了 ISerialize
                         ImplementsISerialize(member.TypeSymbol)
                             ?
-                            // 调用字段的 deserialize 方法
-                            ExpressionStatement(
-                                InvocationExpression(
-                                        MemberAccessExpression(
-                                            SyntaxKind.SimpleMemberAccessExpression,
-                                            IdentifierName(member.Name),
-                                            IdentifierName("deserialize")
-                                        )
-                                    )
-                                    .WithArgumentList(
-                                        ArgumentList(
-                                            SeparatedList<ArgumentSyntax>(
-                                                new[] {
-                                                    Argument(
-                                                        CastExpression(
-                                                            QualifiedName(
-                                                                QualifiedName(
-                                                                    QualifiedName(
-                                                                        IdentifierName("Newtonsoft"),
-                                                                        IdentifierName("Json")
-                                                                    ),
-                                                                    IdentifierName("Linq")
-                                                                ),
-                                                                IdentifierName("JObject")
-                                                            ),
-                                                            IdentifierName(variableName)
-                                                        )
+                            // 调用字段的 deserialize 方法，使用 is 模式匹配进行类型检查
+                            IfStatement(
+                                IsPatternExpression(
+                                    IdentifierName(variableName),
+                                    DeclarationPattern(
+                                        QualifiedName(
+                                            QualifiedName(
+                                                QualifiedName(
+                                                    QualifiedName(
+                                                        IdentifierName("System"),
+                                                        IdentifierName("Text")
                                                     ),
-                                                    Argument(IdentifierName("jsonSerializer"))
-                                                }
-                                            )
+                                                    IdentifierName("Json")
+                                                ),
+                                                IdentifierName("Nodes")
+                                            ),
+                                            IdentifierName("JsonObject")
+                                        ),
+                                        SingleVariableDesignation(
+                                            Identifier($"{variableName}Obj")
                                         )
                                     )
+                                ),
+                                Block(
+                                    ExpressionStatement(
+                                        InvocationExpression(
+                                                MemberAccessExpression(
+                                                    SyntaxKind.SimpleMemberAccessExpression,
+                                                    IdentifierName(member.Name),
+                                                    IdentifierName("deserialize")
+                                                )
+                                            )
+                                            .WithArgumentList(
+                                                ArgumentList(
+                                                    SeparatedList<ArgumentSyntax>(
+                                                        new[] {
+                                                            Argument(IdentifierName($"{variableName}Obj")),
+                                                            Argument(IdentifierName("jsonSerializerOptions"))
+                                                        }
+                                                    )
+                                                )
+                                            )
+                                    )
+                                )
                             )
                             :
-                            // 使用 ToObject
+                            // 使用 JsonSerializer.Deserialize
                             ExpressionStatement(
                                 AssignmentExpression(
                                     SyntaxKind.SimpleAssignmentExpression,
@@ -807,9 +839,18 @@ public class AutoSerializeGenerator : IIncrementalGenerator {
                                         InvocationExpression(
                                                 MemberAccessExpression(
                                                     SyntaxKind.SimpleMemberAccessExpression,
-                                                    IdentifierName(variableName),
+                                                    QualifiedName(
+                                                        QualifiedName(
+                                                            QualifiedName(
+                                                                IdentifierName("System"),
+                                                                IdentifierName("Text")
+                                                            ),
+                                                            IdentifierName("Json")
+                                                        ),
+                                                        IdentifierName("JsonSerializer")
+                                                    ),
                                                     GenericName(
-                                                            Identifier("ToObject")
+                                                            Identifier("Deserialize")
                                                         )
                                                         .WithTypeArgumentList(
                                                             TypeArgumentList(
@@ -822,8 +863,11 @@ public class AutoSerializeGenerator : IIncrementalGenerator {
                                             )
                                             .WithArgumentList(
                                                 ArgumentList(
-                                                    SingletonSeparatedList(
-                                                        Argument(IdentifierName("jsonSerializer"))
+                                                    SeparatedList<ArgumentSyntax>(
+                                                        new[] {
+                                                            Argument(IdentifierName(variableName)),
+                                                            Argument(IdentifierName("jsonSerializerOptions"))
+                                                        }
                                                     )
                                                 )
                                             )
@@ -861,24 +905,30 @@ public class AutoSerializeGenerator : IIncrementalGenerator {
                                     QualifiedName(
                                         QualifiedName(
                                             QualifiedName(
-                                                IdentifierName("Newtonsoft"),
+                                                QualifiedName(
+                                                    IdentifierName("System"),
+                                                    IdentifierName("Text")
+                                                ),
                                                 IdentifierName("Json")
                                             ),
-                                            IdentifierName("Linq")
+                                            IdentifierName("Nodes")
                                         ),
-                                        IdentifierName("JObject")
+                                        IdentifierName("JsonObject")
                                     )
                                 ),
                             Parameter(
-                                    Identifier("jsonSerializer")
+                                    Identifier("jsonSerializerOptions")
                                 )
                                 .WithType(
                                     QualifiedName(
                                         QualifiedName(
-                                            IdentifierName("Newtonsoft"),
+                                            QualifiedName(
+                                                IdentifierName("System"),
+                                                IdentifierName("Text")
+                                            ),
                                             IdentifierName("Json")
                                         ),
-                                        IdentifierName("JsonSerializer")
+                                        IdentifierName("JsonSerializerOptions")
                                     )
                                 )
                         }
@@ -906,15 +956,18 @@ public class AutoSerializeGenerator : IIncrementalGenerator {
                 ParameterList(
                     SingletonSeparatedList(
                         Parameter(
-                                Identifier("jsonSerializer")
+                                Identifier("jsonSerializerOptions")
                             )
                             .WithType(
                                 QualifiedName(
                                     QualifiedName(
-                                        IdentifierName("Newtonsoft"),
+                                        QualifiedName(
+                                            IdentifierName("System"),
+                                            IdentifierName("Text")
+                                        ),
                                         IdentifierName("Json")
                                     ),
-                                    IdentifierName("JsonSerializer")
+                                    IdentifierName("JsonSerializerOptions")
                                 )
                             )
                     )
@@ -943,24 +996,30 @@ public class AutoSerializeGenerator : IIncrementalGenerator {
                                     QualifiedName(
                                         QualifiedName(
                                             QualifiedName(
-                                                IdentifierName("Newtonsoft"),
+                                                QualifiedName(
+                                                    IdentifierName("System"),
+                                                    IdentifierName("Text")
+                                                ),
                                                 IdentifierName("Json")
                                             ),
-                                            IdentifierName("Linq")
+                                            IdentifierName("Nodes")
                                         ),
-                                        IdentifierName("JObject")
+                                        IdentifierName("JsonObject")
                                     )
                                 ),
                             Parameter(
-                                    Identifier("jsonSerializer")
+                                    Identifier("jsonSerializerOptions")
                                 )
                                 .WithType(
                                     QualifiedName(
                                         QualifiedName(
-                                            IdentifierName("Newtonsoft"),
+                                            QualifiedName(
+                                                IdentifierName("System"),
+                                                IdentifierName("Text")
+                                            ),
                                             IdentifierName("Json")
                                         ),
-                                        IdentifierName("JsonSerializer")
+                                        IdentifierName("JsonSerializerOptions")
                                     )
                                 )
                         }
@@ -990,24 +1049,30 @@ public class AutoSerializeGenerator : IIncrementalGenerator {
                                     QualifiedName(
                                         QualifiedName(
                                             QualifiedName(
-                                                IdentifierName("Newtonsoft"),
+                                                QualifiedName(
+                                                    IdentifierName("System"),
+                                                    IdentifierName("Text")
+                                                ),
                                                 IdentifierName("Json")
                                             ),
-                                            IdentifierName("Linq")
+                                            IdentifierName("Nodes")
                                         ),
-                                        IdentifierName("JObject")
+                                        IdentifierName("JsonObject")
                                     )
                                 ),
                             Parameter(
-                                    Identifier("jsonSerializer")
+                                    Identifier("jsonSerializerOptions")
                                 )
                                 .WithType(
                                     QualifiedName(
                                         QualifiedName(
-                                            IdentifierName("Newtonsoft"),
+                                            QualifiedName(
+                                                IdentifierName("System"),
+                                                IdentifierName("Text")
+                                            ),
                                             IdentifierName("Json")
                                         ),
-                                        IdentifierName("JsonSerializer")
+                                        IdentifierName("JsonSerializerOptions")
                                     )
                                 )
                         }
@@ -1037,24 +1102,30 @@ public class AutoSerializeGenerator : IIncrementalGenerator {
                                     QualifiedName(
                                         QualifiedName(
                                             QualifiedName(
-                                                IdentifierName("Newtonsoft"),
+                                                QualifiedName(
+                                                    IdentifierName("System"),
+                                                    IdentifierName("Text")
+                                                ),
                                                 IdentifierName("Json")
                                             ),
-                                            IdentifierName("Linq")
+                                            IdentifierName("Nodes")
                                         ),
-                                        IdentifierName("JObject")
+                                        IdentifierName("JsonObject")
                                     )
                                 ),
                             Parameter(
-                                    Identifier("jsonSerializer")
+                                    Identifier("jsonSerializerOptions")
                                 )
                                 .WithType(
                                     QualifiedName(
                                         QualifiedName(
-                                            IdentifierName("Newtonsoft"),
+                                            QualifiedName(
+                                                IdentifierName("System"),
+                                                IdentifierName("Text")
+                                            ),
                                             IdentifierName("Json")
                                         ),
-                                        IdentifierName("JsonSerializer")
+                                        IdentifierName("JsonSerializerOptions")
                                     )
                                 )
                         }

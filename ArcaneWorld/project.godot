@@ -17,11 +17,7 @@ config/icon="res://icon.svg"
 
 [autoload]
 
-LogManage="*res://Global/LogManage.cs"
-AssemblyLoadManage="*res://Global/AssemblyLoadManage.cs"
-RegisterSystemHold="*res://Global/RegisterSystemHold.cs"
-EventBusHold="*res://Global/EventBusHold.cs"
-JsonSerializerHold="*res://Global/JsonSerializerHold.cs"
+SGlobalComponentLoader="res://Script/Global/S_GlobalComponentLoader.cs"
 
 [dotnet]
 
@@ -30,4 +26,14 @@ project/solution_directory="../"
 
 [editor_plugins]
 
-enabled=PackedStringArray("res://addons/custom_type/plugin.cfg", "res://addons/resource_tree_generator/plugin.cfg")
+enabled=PackedStringArray("res://addons/ArcaneWorldGenerator/plugin.cfg", "res://addons/CustomType/plugin.cfg", "res://addons/SIsilicon.vfx.lens flare/plugin.cfg", "res://addons/zylann.atmosphere/tools/plugin.cfg")
+
+[file_customization]
+
+folder_colors={
+"res://Prefab/": "pink",
+"res://Scenes/": "pink",
+"res://Script/": "blue",
+"res://Shaders/": "yellow",
+"res://addons/": "purple"
+}

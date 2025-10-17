@@ -1,15 +1,15 @@
-﻿using ArcaneWorld.Attribute;
+﻿using System.Text.Json;
+using System.Text.Json.Nodes;
+using ArcaneWorld.Attribute;
 using ArcaneWorld.Capacity;
 using ArcaneWorld.Capacity.Instance;
 using ArcaneWorld.Global;
 using ArcaneWorld.Register;
 using ArcaneWorld.Util;
-using CakeToolset.Serialize;
+using CakeToolset.Global.Component;
 using FlexibleRequired;
 using Godot;
 using Godot.Collections;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 
 namespace ArcaneWorld.Mechanical;
 
@@ -49,10 +49,10 @@ public partial class MechanicalBase : Node3D, IAutoSerialize {
     
     [Export(PropertyHint.MultilineText)]
     public String saveData {
-        get => serialize(JsonSerializerHold.jsonSerializer).ToString();
+        get => serialize(JsonSerializerHold.jsonSerializerOptions).ToJsonString();
         set {
-            JObject jObject = JsonSerializerHold.jsonSerializer.Deserialize<JObject>(new JsonTextReader(new StringReader(value)))!;
-            deserialize(jObject, JsonSerializerHold.jsonSerializer);
+            JsonObject jObject = JsonSerializer.Deserialize<JsonObject>(value, JsonSerializerHold.jsonSerializerOptions)!;
+            deserialize(jObject, JsonSerializerHold.jsonSerializerOptions);
         }
     }
 
@@ -64,9 +64,9 @@ public partial class MechanicalBase : Node3D, IAutoSerialize {
         return new StructWriteLockContext(rwLock);
     }
 
-    protected partial void onBeforeSerialize(JsonSerializer jsonSerializer) { }
-    protected partial void onAfterSerialize(JObject jObject, JsonSerializer jsonSerializer) { }
-    protected partial void onBeforeDeserialize(JObject data, JsonSerializer jsonSerializer) { }
-    protected partial void onAfterDeserialize(JObject data, JsonSerializer jsonSerializer) { }
+    protected partial void onBeforeSerialize(JsonSerializerOptions jsonSerializerOptions) { }
+    protected partial void onAfterSerialize(JsonObject jObject, JsonSerializerOptions jsonSerializerOptions) { }
+    protected partial void onBeforeDeserialize(JsonObject data, JsonSerializerOptions jsonSerializerOptions) { }
+    protected partial void onAfterDeserialize(JsonObject data, JsonSerializerOptions jsonSerializerOptions) { }
 
 }

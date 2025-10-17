@@ -2,17 +2,20 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using CommonUtil;
 using CommonUtil.Extensions;
-using log4net;
+using CommonUtil.Log;
 
 namespace RegisterSystem;
 
-public partial class RegisterSystem {
+public partial class RegisterSystem : IDisposable {
 
     /// <summary>
     /// 所有接受管理的程序集
     /// </summary>
     public required HashSet<Assembly> managedAssemblySet { get; init; }
+
+    private bool disposed = false;
 
     /// <summary>
     /// 允许检测的所有类型
@@ -60,14 +63,11 @@ public partial class RegisterSystem {
 
     public LogLevel logLevel { get; init; } = LogLevel.DEBUG;
 
-    private ILog? _rawLog;
-
-    public ILog? log {
-        get => _rawLog;
-        init => _rawLog = value;
-    }
+    public ILog? log { get; init; }
 
     public void initRegisterSystem() {
+
+        log?.Info("init...");
 
         allType = managedAssemblySet.SelectMany(a => a.GetTypes())
             .Where(Util.isEffective)
@@ -267,6 +267,8 @@ public partial class RegisterSystem {
                 (m, e) => log?.Error($"调用 {m.GetType()}.initEnd() 时出现异常：", e)
             )
             .End();
+
+        log?.Info("init end...");
     }
 
     protected void unifyRegister(List<RegisterBasics> registerBasicsList) {
@@ -356,5 +358,37 @@ public partial class RegisterSystem {
     public RegisterManage? getRegisterManageOfName(ResourceLocation? name) => name is null
         ? null
         : nameManageMap.GetValueOrDefault(name);
+
+    /// <summary>
+    /// 清理 RegisterSystem 资源
+    /// </summary>
+    public void Dispose() {
+        if (disposed) {
+            return;
+        }
+        disposed = true;
+
+        manageList
+            .TryPeek(m => m.dispose(), (m, ex) => log?.Error($"卸载 {m} 时发生异常：", ex))
+            .End();
+
+        registerBasicsSortedSet
+            .TryPeek(r => r.dispose(), (r, ex) => log?.Error($"卸载 {r.GetType()}-{r.name} 时触发异常：", ex))
+            .End();
+
+        manageMap = null!;
+        rootManageMap = null!;
+        rootRegisterTypeManageMap = null!;
+        nameManageMap = null!;
+        managedRegisterManageTypeMap = null!;
+        managedRegisterManageMap = null!;
+        manageList = null!;
+        rootManageList = null!;
+        manageTypeList = null!;
+        allType = null!;
+        managedAssemblySet.Clear();
+
+        GC.SuppressFinalize(this);
+    }
 
 }

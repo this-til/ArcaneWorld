@@ -7,7 +7,7 @@ public partial class MaterialManage : RegisterManage<Material> {
 
     public override int priority => (int)RegisterPriority.Material;
 
-    public override void setup() {
+    protected override void setup() {
         base.setup();
 
         // 铁
@@ -38,7 +38,7 @@ public partial class Material : RegisterBasics {
 
     public MetalMaterial? metalMaterial { get; private set; }
 
-    public override void setup() {
+    protected override void setup() {
         base.setup();
 
         dustMaterial = new DustMaterial() {

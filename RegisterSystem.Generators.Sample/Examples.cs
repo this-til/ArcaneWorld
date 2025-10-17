@@ -8,7 +8,7 @@ public partial class ExampleRegisterItemManage : RegisterManage<ExampleRegisterI
 
     public static bool attachedConditions { get; } = true;
     
-    public override void setup() {
+    protected  override void setup() {
         base.setup();
         basicItem = new ExampleRegisterItem();
         anotherItem = new ExampleRegisterItem();
@@ -49,7 +49,7 @@ public partial class ExistingFieldsManage : RegisterManage<ExampleRegisterItem> 
     // 这个是字段而不是属性，应该报告错误
     //public static ExampleRegisterItem fieldInsteadOfProperty;
 
-    public override void setup() {
+    protected override void setup() {
         base.setup();
         correctExistingField = new ExampleRegisterItem();
         wrongField = new ExampleRegisterItem();
@@ -64,7 +64,7 @@ public partial class ExistingFieldsManage : RegisterManage<ExampleRegisterItem> 
 // 测试错误类型约束的情况
 public partial class WrongTypeManage : RegisterManage<ExampleRegisterItem> {
 
-    public override void setup() {
+    protected  override void setup() {
         base.setup();
         // 这个应该成功生成（正确类型）
         correctType = new ExampleRegisterItem();
@@ -85,7 +85,7 @@ public partial class OtherRegisterItem : RegisterBasics {
 // 测试多层继承
 public partial class MultiLevelManage : RegisterManage<BaseRegisterItem> {
 
-    public override void setup() {
+    protected  override void setup() {
         base.setup();
         baseItem = new BaseRegisterItem();
         middleItem = new MiddleRegisterItem();

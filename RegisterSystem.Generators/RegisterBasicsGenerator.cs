@@ -30,7 +30,7 @@ public class RegisterBasicsGenerator : RegisterManageGenerator {
         // 如果没有找到 setup 方法，创建一个虚拟的空方法体用于后续处理
         if (setupMethod == null) {
             return MethodDeclaration(PredefinedType(Token(SyntaxKind.VoidKeyword)), Identifier(SetUpMethodName))
-                .WithModifiers(TokenList(Token(SyntaxKind.PublicKeyword), Token(SyntaxKind.OverrideKeyword)))
+                .WithModifiers(TokenList(Token(SyntaxKind.ProtectedKeyword), Token(SyntaxKind.OverrideKeyword)))
                 .WithBody(Block()); // 空方法体
         }
 
@@ -168,6 +168,11 @@ public class RegisterBasicsGenerator : RegisterManageGenerator {
     }
 
     protected override MemberDeclarationSyntax? GenerateInstanceProperty(INamedTypeSymbol classSymbol) {
+        return null;
+    }
+
+    protected override MemberDeclarationSyntax? GenerateDisposeOverride(INamedTypeSymbol classSymbol, ClassDeclarationSyntax classDeclarationSyntax, List<FieldDefinition> validFields) {
+        // RegisterBasics 生成的是实例属性，不需要 dispose 方法
         return null;
     }
 

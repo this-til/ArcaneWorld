@@ -7,7 +7,6 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="log4net" Version="3.0.1" />
         <ProjectReference Include="../CommonUtil/CommonUtil.csproj"/>
     </ItemGroup>
 

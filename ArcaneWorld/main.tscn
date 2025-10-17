@@ -1,6 +1,6 @@
 [gd_scene load_steps=2 format=3 uid="uid://ddktp7ajpai74"]
 
-[ext_resource type="Script" uid="uid://dvfg42ibl6qnf" path="res://Mechanical/ActuatorMechanical.cs" id="1_ig7tw"]
+[ext_resource type="Script" uid="uid://dvfg42ibl6qnf" path="res://Script/Mechanical/ActuatorMechanicalBase.cs" id="1_ig7tw"]
 
 [node name="Node3D" type="Node3D"]
 

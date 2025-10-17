@@ -4,7 +4,7 @@ namespace ArcaneWorld.Register;
 
 public partial class GemstoneMaterialManage : RegisterManage<GemstoneMaterial> {
 
-    public override void setup() {
+    protected override void setup() {
         base.setup();
     }
 
@@ -12,7 +12,7 @@ public partial class GemstoneMaterialManage : RegisterManage<GemstoneMaterial> {
 
 public partial class GemstoneMaterial : MaterialComponent {
 
-    public override void setup() {
+    protected override void setup() {
         base.setup();
 
         //完美 8粉

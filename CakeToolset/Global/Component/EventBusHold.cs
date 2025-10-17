@@ -1,25 +1,25 @@
 ﻿using System.Reflection;
-using ArcaneWorld.Attribute;
-using ArcaneWorld.Util;
+using CakeToolset.Attribute;
+using CakeToolset.Global;
+using CakeToolset.Log;
 using CommonUtil.Extensions;
 using Godot;
 
-namespace ArcaneWorld.Global;
+namespace CakeToolset.Global.Component;
 
-public partial class EventBusHold : Node {
+[Tool]
+public partial class EventBusHold : Node, IGlobalComponent {
 
     public static EventBus.EventBus eventBus { get; private set; } = null!;
 
-    public override void _Ready() {
-        base._Ready();
-
+    public void initialize() {
         eventBus = new EventBus.EventBus(
             new EventBus.EventBus.EventBusBuilder() {
-                log = log4net.LogManager.GetLogger("EventBus")
+                log = LogManager.GetLogger("EventBus")
             }
         );
 
-        AssemblyLoadManage.instance.eventBusSubscriberAttributeTypes
+        GlobalComponentLoader.instance.eventBusSubscriberAttributeTypes
             .Peek(t => eventBus.put(t.type))
             .End();
 
@@ -34,5 +34,12 @@ public partial class EventBusHold : Node {
             .End();
 
     }
+
+    public void terminate() {
+        eventBus?.Dispose();
+        eventBus = null!;
+    }
+    
+    public int priority => 1 << 23;
 
 }

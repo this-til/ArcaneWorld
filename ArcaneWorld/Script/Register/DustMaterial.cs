@@ -4,7 +4,7 @@ namespace ArcaneWorld.Register;
 
 public partial class DustMaterialManage : RegisterManage<DustMaterial> {
 
-    public override void setup() {
+    protected override void setup() {
         base.setup();
     }
 
@@ -12,7 +12,7 @@ public partial class DustMaterialManage : RegisterManage<DustMaterial> {
 
 public partial class DustMaterial : MaterialComponent {
 
-    public override void setup() {
+    protected override void setup() {
         base.setup();
 
         // 粉

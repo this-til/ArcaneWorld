@@ -14,7 +14,7 @@ public class RegisterBasics : IComparable<RegisterBasics> {
 
     internal ResourceLocation _name = null !;
 
-    public virtual ResourceLocation name { get => _name; init => _name = value; }
+    public ResourceLocation name { get => _name; init => _name = value; }
 
     public RegisterManage registerManage { get; internal set; } = null !;
 
@@ -32,87 +32,39 @@ public class RegisterBasics : IComparable<RegisterBasics> {
 
     public IReadOnlyList<RegisterBasics> sonRegisterList { get; internal set; } = null!;
 
-    public RegisterBasics() {
+    protected internal RegisterBasics() {
     }
 
     /// <summary>
     /// 最早的初始化方法
     /// </summary>
-    public virtual void awakeInit() {
+    protected internal virtual void awakeInit() {
 
     }
 
-    public virtual void setup() { }
+    protected internal virtual void setup() { }
 
     /// <summary>
     /// 获取附加的注册项目
     /// </summary>
-    public virtual IEnumerable<(RegisterBasics son, string name)> getAdditionalRegister() {
-        /*return sonRegisterList = GetType()
-            .GetFields(BindingFlags.Public | BindingFlags.Static)
-            .OfType<MemberInfo>()
-            .Concat(GetType().GetProperties(BindingFlags.Public | BindingFlags.Static))
-            .Where(Util.isEffective)
-            .Select(memberInfo => (memberInfo, type: ((memberInfo as FieldInfo)?.FieldType ?? (memberInfo as PropertyInfo)?.PropertyType)!, attribute: memberInfo.GetCustomAttribute<FieldRegisterAttribute>()))
-            .Where(t => t.attribute is not null)
-            .Where(t => t.type is not null)
-            .Diversion(
-                t => t.attribute.controlRegistration is not null,
-                lt => lt
-                    .Where(
-                        t =>
-                            (GetType().GetProperty(t.attribute.controlRegistration!, BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)?.GetValue(this) as bool? ?? false) ||
-                            (GetType().GetField(t.attribute.controlRegistration!, BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)?.GetValue(this) as bool? ?? false)
-                    )
-                    .Exception(e => { if (registerSystem.log?.IsErrorEnabled ?? false) registerSystem.log?.Error($"调用 ({GetType()}-{name}).getDefaultRegisterItem() 中获取注册控制属性值时出现异常：", e); })
-                    .NotNull()
-            )
-            .Where(t => typeof(RegisterBasics).IsAssignableFrom(t.type))
-            .Select(t => (t.memberInfo, t.type, registerBasics: ((t.memberInfo as FieldInfo)?.GetValue(null) as RegisterBasics ?? (t.memberInfo as PropertyInfo)?.GetValue(null) as RegisterBasics)!))
-            .Diversion(
-                t => t.registerBasics is null,
-                lt => lt
-                    .Select(
-                        t => t with {
-                            registerBasics = (RegisterBasics)Activator.CreateInstance(t.type)
-                        }
-                    )
-                    .Exception(e => { if (registerSystem.log?.IsErrorEnabled ?? false) registerSystem.log?.Error($"调用 ({GetType()}-{name}).getDefaultRegisterItem() 中创建 RegisterBasics 实例时出现异常：", e); })
-                    .NotNull()
-                    .Peek(
-                        t => {
-                            (t.memberInfo as PropertyInfo)?.SetValue(null, t.registerBasics);
-                            (t.memberInfo as FieldInfo)?.SetValue(null, t.registerBasics);
-                        }
-                    )
-                    .Exception(e => { if (registerSystem.log?.IsErrorEnabled ?? false) registerSystem.log?.Error($"调用 ({GetType()}-{name}).getDefaultRegisterItem() 中设置静态属性或字段值时出现异常：", e); })
-                    .NotNull()
-            )
-            .Peek(t => t.registerBasics.name ??= new ResourceLocation(name.domain, $"{name.path}.{t.memberInfo.Name}"))
-            .Diversion(
-                t => t.registerBasics.registerManage is null,
-                lt => lt
-                    .Peek(t => t.registerBasics.registerManage = registerSystem.getRegisterManageOfRegisterType(t.registerBasics.GetType())!)
-                    .Where(t => t.registerBasics.registerManage is not null, t => { if (registerSystem.log?.IsErrorEnabled ?? false) registerSystem.log?.Error($"调用 ({GetType()}-{name}).getDefaultRegisterItem() 中未找到 RegisterBasics 对应的 RegisterManage，类型: {t.registerBasics.GetType().Name}"); })
-            )
-            .Peek(t => t.registerBasics.registerSystem = registerSystem)
-            .Peek(t => t.registerBasics.basics = this)
-            .Select(t => t.registerBasics)
-            .ToList();*/
-
+    protected internal virtual IEnumerable<(RegisterBasics son, string name)> getAdditionalRegister() {
         yield break;
     }
 
     /// <summary>
     /// 初始化方法
     /// </summary>
-    public virtual void init() {
+    protected internal virtual void init() {
     }
 
     /// <summary>
     /// 初始化结束后统一调用
     /// </summary>
-    public virtual void initEnd() {
+    protected internal virtual void initEnd() {
+    }
+    
+    protected internal virtual void dispose() {
+        
     }
 
     public override string ToString() => name?.ToString() ?? "(not specified)";

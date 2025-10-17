@@ -1,3 +1,4 @@
+/*
 using Godot;
 using Godot.Collections;
 using Newtonsoft.Json.Linq;
@@ -170,3 +171,4 @@ public static class GodotJsonConverter {
     }
 
 }
+*/

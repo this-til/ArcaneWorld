@@ -1,13 +1,13 @@
 using System.Collections.Concurrent;
 using System.ComponentModel.DataAnnotations;
+using System.Text.Json;
+using System.Text.Json.Nodes;
 using ArcaneWorld.Attribute;
 using ArcaneWorld.Capacity;
 using ArcaneWorld.Util;
 using CommonUtil.Container;
 using Godot;
 using Godot.Collections;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 using RegisterSystem;
 
 namespace ArcaneWorld.Capacity.Instance;
@@ -253,16 +253,16 @@ public partial class Container<T> : IContainer<T>, IAutoSerialize where T : clas
         return transferLock.lockForWrite();
     }
 
-    protected partial void onBeforeSerialize(JsonSerializer jsonSerializer) {
+    protected partial void onBeforeSerialize(JsonSerializerOptions jsonSerializerOptions) {
     }
 
-    protected partial void onAfterSerialize(JObject jObject, JsonSerializer jsonSerializer) {
+    protected partial void onAfterSerialize(JsonObject jObject, JsonSerializerOptions jsonSerializerOptions) {
     }
 
-    protected partial void onBeforeDeserialize(JObject data, JsonSerializer jsonSerializer) {
+    protected partial void onBeforeDeserialize(JsonObject data, JsonSerializerOptions jsonSerializerOptions) {
     }
 
-    protected partial void onAfterDeserialize(JObject data, JsonSerializer jsonSerializer) {
+    protected partial void onAfterDeserialize(JsonObject data, JsonSerializerOptions jsonSerializerOptions) {
     }
 
 }

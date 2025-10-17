@@ -21,13 +21,8 @@
     <ItemGroup>
         <PackageReference Include="FlexibleRequired.Analyzers" Version="1.0.0"/>
         <PackageReference Include="GodotSharp.SourceGenerators" Version="2.6.0"/>
-        <PackageReference Include="Newtonsoft.Json" Version="13.0.4" />
-        <PackageReference Include="log4net" Version="3.0.1" />
         <PackageReference Include="System.Configuration.ConfigurationManager" Version="8.0.1" />
-    </ItemGroup>
-
-    <ItemGroup>
-      <Folder Include="Script\Recipe\" />
+        <PackageReference Include="System.Reactive" Version="6.1.0" />
     </ItemGroup>
 
     <ItemGroup>
@@ -43,8 +38,12 @@
     </ItemGroup>
 
     <ItemGroup>
-      <Content Include="addons\resource_tree_generator\plugin.cfg" />
+      <Content Include="addons\ArcaneWorldGenerator\plugin.cfg" />
       <Content Include="assembly_load.config.json" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Folder Include="Script\Register\Recipe\" />
     </ItemGroup>
     
 </Project>

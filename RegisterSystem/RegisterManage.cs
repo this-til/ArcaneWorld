@@ -72,67 +72,39 @@ public abstract class RegisterManage : IComparable<RegisterManage> {
     public abstract RegisterBasics indexErase(int i);
     public abstract bool contain(RegisterBasics registerBasics);
 
-    public virtual void awakeInit() {
+    protected internal virtual void awakeInit() {
     }
 
-    public virtual void setup() { }
+    protected internal virtual void setup() { }
 
-    public virtual IEnumerable<(RegisterBasics registerBasics, string name)> getDefaultRegisterItem() {
-        /*return GetType()
-            .GetFields(BindingFlags.Public | BindingFlags.Static)
-            .OfType<MemberInfo>()
-            .Concat(GetType().GetProperties(BindingFlags.Public | BindingFlags.Static))
-            .Where(Util.isEffective)
-            .Select(memberInfo => (memberInfo, type: ((memberInfo as FieldInfo)?.FieldType ?? (memberInfo as PropertyInfo)?.PropertyType)!))
-            .Where(t => t.type is not null)
-            .Where(t => typeof(RegisterBasics).IsAssignableFrom(t.type))
-            .Select(t => (t.memberInfo, t.type, registerBasics: ((t.memberInfo as FieldInfo)?.GetValue(null) as RegisterBasics ?? (t.memberInfo as PropertyInfo)?.GetValue(null) as RegisterBasics)!))
-            .Diversion(
-                t => t.registerBasics is null,
-                lt => lt
-                    .Select(
-                        t => t with {
-                            registerBasics = (RegisterBasics)Activator.CreateInstance(t.type)
-                        }
-                    )
-                    .Exception(e => { if (registerSystem.log?.IsErrorEnabled ?? false) registerSystem.log?.Error($"调用 {GetType()}.getDefaultRegisterItem() 中创建 RegisterBasics 实例时出现异常：", e); })
-                    .NotNull()
-                    .Peek(
-                        t => {
-                            (t.memberInfo as PropertyInfo)?.SetValue(null, t.registerBasics);
-                            (t.memberInfo as FieldInfo)?.SetValue(null, t.registerBasics);
-                        }
-                    )
-                    .Exception(e => { if (registerSystem.log?.IsErrorEnabled ?? false) registerSystem.log?.Error($"调用 {GetType()}.getDefaultRegisterItem() 中设置静态属性或字段值时出现异常：", e); })
-                    .NotNull()
-            )
-            .Peek(t => t.registerBasics.name ??= new ResourceLocation(name.domain, t.memberInfo.Name))
-            .Peek(t => t.registerBasics.registerManage ??= this)
-            .Peek(t => t.registerBasics.registerSystem = registerSystem)
-            .Select(t => t.registerBasics);*/
+    protected internal virtual IEnumerable<(RegisterBasics registerBasics, string name)> getDefaultRegisterItem() {
         yield break;
     }
 
-    public virtual void init() {
+    protected internal virtual void init() {
     }
 
-    public virtual IEnumerable<(RegisterBasics registerBasics, string name)> getSecondDefaultRegisterItem() {
+    protected internal virtual IEnumerable<(RegisterBasics registerBasics, string name)> getSecondDefaultRegisterItem() {
         yield break;
     }
 
-    public virtual void initSecond() {
+    protected internal virtual void initSecond() {
     }
 
-    public virtual void initThird() {
+    protected internal virtual void initThird() {
     }
 
-    public virtual void initEnd() {
+    protected internal virtual void initEnd() {
+    }
+
+    protected internal virtual void dispose() {
+        
     }
 
     /// <summary>
     /// 注册操作
     /// </summary>
-    public abstract void put(RegisterBasics register, bool fromSon);
+    protected internal abstract void put(RegisterBasics register, bool fromSon);
 
     /// <summary>
     /// 获取哈希码
@@ -187,7 +159,7 @@ public abstract class RegisterManage<T> : RegisterManage where T : RegisterBasic
         return registerBasicsList[i];
     }
 
-    public override void put(RegisterBasics register, bool fromSon) {
+    protected internal override void put(RegisterBasics register, bool fromSon) {
         basicsRegisterManage?.put(register, true);
         for (var i = 0; i < registerBasicsList.Count + 1; i++) {
             if (i == registerBasicsList.Count) {
@@ -204,7 +176,7 @@ public abstract class RegisterManage<T> : RegisterManage where T : RegisterBasic
         registerBasicsMap.Add(register.name, (T)register);
     }
 
-    public override void initThird() {
+    protected internal override void initThird() {
         base.initThird();
         if (basicsRegisterManage is not null) {
             return;

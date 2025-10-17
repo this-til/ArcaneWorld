@@ -13,13 +13,11 @@ namespace RegisterSystem.Tests;
 
 public partial  class RegisterSystemIntegrationTests {
 
-    private readonly TestLog _testLog;
     private readonly Assembly _testAssembly;
     private readonly ITestOutputHelper _testOutputHelper;
 
     public RegisterSystemIntegrationTests(ITestOutputHelper testOutputHelper) {
         _testOutputHelper = testOutputHelper;
-        _testLog = new TestLog(testOutputHelper, enableConsoleOutput: true);
         _testAssembly = Assembly.GetExecutingAssembly();
     }
 
@@ -30,7 +28,6 @@ public partial  class RegisterSystemIntegrationTests {
             managedAssemblySet = [
                 _testAssembly
             ],
-            log = _testLog
         };
 
         // Assert
@@ -45,7 +42,7 @@ public partial  class RegisterSystemIntegrationTests {
             managedAssemblySet = [
                 _testAssembly
             ],
-            log = _testLog
+            
         };
 
         // Act
@@ -64,7 +61,7 @@ public partial  class RegisterSystemIntegrationTests {
             managedAssemblySet = [
                 _testAssembly
             ],
-            log = _testLog
+            
         };
 
         // Act
@@ -83,7 +80,7 @@ public partial  class RegisterSystemIntegrationTests {
             managedAssemblySet = [
                 _testAssembly
             ],
-            log = _testLog
+            
         };
 
         // Act
@@ -103,7 +100,7 @@ public partial  class RegisterSystemIntegrationTests {
             managedAssemblySet = [
                 _testAssembly
             ],
-            log = _testLog
+            
         };
 
         // Act
@@ -123,7 +120,7 @@ public partial  class RegisterSystemIntegrationTests {
             managedAssemblySet = [
                 _testAssembly
             ],
-            log = _testLog
+            
         };
 
         // Act
@@ -147,7 +144,7 @@ public partial  class RegisterSystemIntegrationTests {
             managedAssemblySet = [
                 _testAssembly
             ],
-            log = _testLog
+            
         };
 
         // Act
@@ -166,7 +163,7 @@ public partial  class RegisterSystemIntegrationTests {
             managedAssemblySet = [
                 _testAssembly
             ],
-            log = _testLog
+            
         };
 
         // Act
@@ -185,7 +182,7 @@ public partial  class RegisterSystemIntegrationTests {
             managedAssemblySet = [
                 _testAssembly
             ],
-            log = _testLog
+            
         };
 
         // Act
@@ -203,7 +200,7 @@ public partial  class RegisterSystemIntegrationTests {
             managedAssemblySet = [
                 _testAssembly
             ],
-            log = _testLog
+            
         };
 
         // Act
@@ -224,7 +221,7 @@ public partial  class RegisterSystemIntegrationTests {
             managedAssemblySet = [
                 _testAssembly
             ],
-            log = _testLog
+            
         };
 
         // Act
@@ -244,7 +241,7 @@ public partial  class RegisterSystemIntegrationTests {
             managedAssemblySet = [
                 _testAssembly
             ],
-            log = _testLog
+            
         };
 
         // Act
@@ -262,7 +259,7 @@ public partial  class RegisterSystemIntegrationTests {
             managedAssemblySet = [
                 _testAssembly
             ],
-            log = _testLog
+            
         };
         registerSystem.initRegisterSystem();
 
@@ -281,7 +278,7 @@ public partial  class RegisterSystemIntegrationTests {
             managedAssemblySet = [
                 _testAssembly
             ],
-            log = _testLog
+            
         };
         registerSystem.initRegisterSystem();
 
@@ -299,7 +296,7 @@ public partial  class RegisterSystemIntegrationTests {
             managedAssemblySet = [
                 _testAssembly
             ],
-            log = _testLog
+            
         };
         registerSystem.initRegisterSystem();
 
@@ -318,7 +315,7 @@ public partial  class RegisterSystemIntegrationTests {
             managedAssemblySet = [
                 _testAssembly
             ],
-            log = _testLog
+            
         };
         registerSystem.initRegisterSystem();
 
@@ -337,7 +334,7 @@ public partial  class RegisterSystemIntegrationTests {
             managedAssemblySet = [
                 _testAssembly
             ],
-            log = _testLog
+            
         };
         registerSystem.initRegisterSystem();
 
@@ -356,7 +353,7 @@ public partial  class RegisterSystemIntegrationTests {
             managedAssemblySet = [
                 _testAssembly
             ],
-            log = _testLog
+            
         };
         registerSystem.initRegisterSystem();
 
@@ -377,7 +374,7 @@ public partial  class RegisterSystemIntegrationTests {
             managedAssemblySet = [
                 _testAssembly
             ],
-            log = _testLog
+            
         };
         registerSystem.initRegisterSystem();
 
@@ -412,7 +409,7 @@ public partial  class RegisterSystemIntegrationTests {
             managedAssemblySet = [
                 _testAssembly
             ],
-            log = _testLog
+            
         };
 
         // Act
@@ -437,7 +434,7 @@ public partial  class RegisterSystemIntegrationTests {
             managedAssemblySet = [
                 _testAssembly
             ],
-            log = _testLog
+            
         };
 
         // Act
@@ -462,7 +459,7 @@ public partial  class RegisterSystemIntegrationTests {
             managedAssemblySet = [
                 _testAssembly
             ],
-            log = _testLog
+            
         };
 
         // Act
@@ -485,7 +482,7 @@ public partial  class RegisterSystemIntegrationTests {
             managedAssemblySet = [
                 _testAssembly
             ],
-            log = _testLog
+            
         };
 
         // Act
@@ -510,7 +507,7 @@ public partial  class RegisterSystemIntegrationTests {
             managedAssemblySet = [
                 _testAssembly
             ],
-            log = _testLog
+            
         };
 
         // Act
@@ -537,7 +534,7 @@ public partial  class RegisterSystemIntegrationTests {
             managedAssemblySet = [
                 _testAssembly
             ],
-            log = _testLog
+            
         };
 
         // Act
@@ -561,7 +558,7 @@ public partial  class RegisterSystemIntegrationTests {
             managedAssemblySet = [
                 _testAssembly
             ],
-            log = _testLog
+            
         };
 
         // Act
@@ -583,7 +580,7 @@ public partial  class RegisterSystemIntegrationTests {
             managedAssemblySet = [
                 _testAssembly
             ],
-            log = _testLog
+            
         };
 
         // Act
@@ -614,7 +611,7 @@ public partial  class RegisterSystemIntegrationTests {
             managedAssemblySet = [
                 _testAssembly
             ],
-            log = _testLog
+            
         };
 
         // Act
@@ -647,7 +644,7 @@ public partial  class RegisterSystemIntegrationTests {
             managedAssemblySet = [
                 _testAssembly
             ],
-            log = _testLog
+            
         };
 
         // Act
@@ -668,7 +665,7 @@ public partial  class RegisterSystemIntegrationTests {
             managedAssemblySet = [
                 _testAssembly
             ],
-            log = _testLog
+            
         };
 
         // Act
@@ -696,7 +693,7 @@ public partial  class RegisterSystemIntegrationTests {
             managedAssemblySet = [
                 _testAssembly
             ],
-            log = _testLog
+            
         };
 
         // Act
@@ -718,7 +715,7 @@ public partial  class RegisterSystemIntegrationTests {
             managedAssemblySet = [
                 _testAssembly
             ],
-            log = _testLog
+            
         };
 
         // Act
@@ -744,7 +741,7 @@ public partial  class RegisterSystemIntegrationTests {
             managedAssemblySet = [
                 _testAssembly
             ],
-            log = _testLog
+            
         };
 
         // Act
@@ -763,13 +760,11 @@ public partial  class RegisterSystemIntegrationTests {
 
 public class RegisterSystemErrorHandlingTests {
 
-    private readonly TestLog _testLog;
     private readonly Assembly _testAssembly;
     private readonly ITestOutputHelper _testOutputHelper;
 
     public RegisterSystemErrorHandlingTests(ITestOutputHelper testOutputHelper) {
         _testOutputHelper = testOutputHelper;
-        _testLog = new TestLog(testOutputHelper, enableConsoleOutput: true);
         _testAssembly = Assembly.GetExecutingAssembly();
     }
 
@@ -779,7 +774,7 @@ public class RegisterSystemErrorHandlingTests {
         var registerSystem = new RegisterSystem {
             managedAssemblySet = [
             ],
-            log = _testLog
+            
         };
 
         // Act
@@ -798,7 +793,7 @@ public class RegisterSystemErrorHandlingTests {
             managedAssemblySet = [
                 _testAssembly
             ],
-            log = _testLog
+            
         };
         registerSystem.initRegisterSystem();
 
@@ -816,7 +811,7 @@ public class RegisterSystemErrorHandlingTests {
             managedAssemblySet = [
                 _testAssembly
             ],
-            log = _testLog
+            
         };
         registerSystem.initRegisterSystem();
 

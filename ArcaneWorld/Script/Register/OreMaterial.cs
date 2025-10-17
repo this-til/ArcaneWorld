@@ -8,7 +8,7 @@ public partial class OreMaterialManage : RegisterManage<OreMaterial> {
 
     public override int priority => (int)RegisterPriority.OreMaterial;
 
-    public override void setup() {
+    protected override void setup() {
         base.setup();
     }
 
@@ -16,8 +16,7 @@ public partial class OreMaterialManage : RegisterManage<OreMaterial> {
 
 public partial class OreMaterial : MaterialComponent {
 
-
-    public override void setup() {
+    protected override void setup() {
         base.setup();
 
         // 原矿石

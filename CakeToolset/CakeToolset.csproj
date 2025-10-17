@@ -11,19 +11,27 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <Compile Remove=".godot\**" />
+        <Compile Remove=".godot\**"/>
     </ItemGroup>
 
     <ItemGroup>
-        <EmbeddedResource Remove=".godot\**" />
+        <EmbeddedResource Remove=".godot\**"/>
     </ItemGroup>
-    
+
     <ItemGroup>
         <ProjectReference Include="../RegisterSystem/RegisterSystem.csproj"/>
+        <ProjectReference Include="../CommonUtil/CommonUtil.csproj"/>
+        <ProjectReference Include="..\EventBus\EventBus.csproj"/>
+        <ProjectReference Include="..\GDTask\GDTask.csproj"/>
     </ItemGroup>
 
     <ItemGroup>
         <PackageReference Include="FlexibleRequired.Analyzers" Version="1.0.0"/>
-        <PackageReference Include="Newtonsoft.Json" Version="13.0.4"/>
     </ItemGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="../ArcaneWorld.Generators/ArcaneWorld.Generators.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false"/>
+        <ProjectReference Include="../RegisterSystem.Generators/RegisterSystem.Generators.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false"/>
+    </ItemGroup>
+
 </Project>

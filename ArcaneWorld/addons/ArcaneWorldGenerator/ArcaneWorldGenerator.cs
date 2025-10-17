@@ -1,23 +1,34 @@
 ﻿#if TOOLS
 using Godot;
+using System;
+using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Text;
 
-namespace ArcaneWorld.Addons.ResourceTreeGenerator;
 
 [Tool]
-public partial class ResourceTreeGenerator : EditorPlugin {
+public partial class ArcaneWorldGenerator : EditorPlugin {
 
-    public const string generateResourceTree = "生成资源树";
+    public const string generateResourceTreeKey = "生成资源树";
+
+    public const string generateShaderOperationPacksKey = "生成着色器操作包装";
 
     public override void _EnterTree() {
-        AddToolMenuItem(generateResourceTree, new Callable(this, nameof(GenerateResourceTree)));
+        AddToolMenuItem(generateResourceTreeKey, new Callable(this, nameof(generateResourceTree)));
+        AddToolMenuItem(generateShaderOperationPacksKey, new Callable(this, nameof(generateShaderOperationPacks)));
     }
 
     public override void _ExitTree() {
-        RemoveToolMenuItem(generateResourceTree);
+        RemoveToolMenuItem(generateResourceTreeKey);
+        RemoveToolMenuItem(generateShaderOperationPacksKey);
     }
 
-    public void GenerateResourceTree() {
+    private void generateShaderOperationPacks() {
+
+    }
+
+    public void generateResourceTree() {
         string projectPath = ProjectSettings.GlobalizePath("res://");
         GD.Print($"项目根目录: {projectPath}");
 
@@ -28,28 +39,27 @@ public partial class ResourceTreeGenerator : EditorPlugin {
         string generatedCode = GenerateResourceTreeCode(resources);
 
         // 保存到文件
-        string outputPath = System.IO.Path.Combine(projectPath, "Script", "Generated", "ResourceTree.cs");
-        System.IO.Directory.CreateDirectory(System.IO.Path.GetDirectoryName(outputPath));
-        System.IO.File.WriteAllText(outputPath, generatedCode);
+        string outputPath = Path.Combine(projectPath, "Script", "Generated", "R.g.cs");
+        Directory.CreateDirectory(Path.GetDirectoryName(outputPath)!);
+        File.WriteAllText(outputPath, generatedCode);
 
         GD.Print($"资源树已生成: {outputPath}");
         GD.Print($"共扫描到 {resources.Count} 个资源文件");
     }
 
-    private List<ResourceInfo> ScanResources(string projectPath) {
+    private static List<ResourceInfo> ScanResources(string projectPath) {
         var resources = new List<ResourceInfo>();
-        var supportedExtensions = new HashSet<string> {
-            ".tscn", ".cs", ".gd", ".csproj", ".godot", ".cfg",
-            ".svg", ".png", ".jpg", ".jpeg", ".gif", ".bmp", ".tga",
-            ".ogg", ".wav", ".mp3", ".import", ".json", ".xml",
-            ".txt", ".md", ".yml", ".yaml", ".toml", ".ini"
+        var excludedExtensions = new HashSet<string> {
+            ".uid", ".import", ".csproj", ".sln", 
+            ".dll", ".pdb", ".exe", ".so", ".dylib",
+            ".cache", ".tmp", ".log", ".bak"
         };
 
-        ScanDirectory(projectPath, "", resources, supportedExtensions);
+        ScanDirectory(projectPath, "", resources, excludedExtensions);
         return resources;
     }
 
-    private void ScanDirectory(string fullPath, string relativePath, List<ResourceInfo> resources, HashSet<string> supportedExtensions) {
+    private static void ScanDirectory(string fullPath, string relativePath, List<ResourceInfo> resources, HashSet<string> excludedExtensions) {
         try {
             var directory = new System.IO.DirectoryInfo(fullPath);
             if (!directory.Exists)
@@ -64,7 +74,8 @@ public partial class ResourceTreeGenerator : EditorPlugin {
             }
 
             foreach (var file in directory.GetFiles()) {
-                if (supportedExtensions.Contains(file.Extension.ToLower())) {
+                // 排除不需要的扩展名和没有扩展名的文件
+                if (!string.IsNullOrEmpty(file.Extension) && !excludedExtensions.Contains(file.Extension.ToLower())) {
                     string resourcePath = string.IsNullOrEmpty(relativePath)
                         ? file.Name
                         : $"{relativePath}/{file.Name}";
@@ -84,7 +95,7 @@ public partial class ResourceTreeGenerator : EditorPlugin {
                 string newRelativePath = string.IsNullOrEmpty(relativePath)
                     ? subDir.Name
                     : $"{relativePath}/{subDir.Name}";
-                ScanDirectory(subDir.FullName, newRelativePath, resources, supportedExtensions);
+                ScanDirectory(subDir.FullName, newRelativePath, resources, excludedExtensions);
             }
         }
         catch (System.Exception ex) {
@@ -92,12 +103,12 @@ public partial class ResourceTreeGenerator : EditorPlugin {
         }
     }
 
-    private string GenerateResourceTreeCode(List<ResourceInfo> resources) {
+    private static string GenerateResourceTreeCode(List<ResourceInfo> resources) {
         var code = new System.Text.StringBuilder();
 
         code.AppendLine("namespace ArcaneWorld.Generated;");
         code.AppendLine();
-        code.AppendLine("public static class ResourceTree {");
+        code.AppendLine("public static class R {");
         code.AppendLine();
 
         // 按目录层级生成嵌套结构
@@ -108,17 +119,19 @@ public partial class ResourceTreeGenerator : EditorPlugin {
         return code.ToString();
     }
 
-    private void GenerateNestedStructure(System.Text.StringBuilder code, List<ResourceInfo> resources, string currentPath, int indentLevel) {
+    private static void GenerateNestedStructure(System.Text.StringBuilder code, List<ResourceInfo> resources, string currentPath, int indentLevel) {
         string indent = new string(' ', indentLevel * 4);
-        
+
         // 获取当前路径下的直接子目录和文件
         var currentLevelResources = resources.Where(r => r.DirectoryPath == currentPath).ToList();
         var subDirectories = resources
             .Where(r => r.DirectoryPath.StartsWith(currentPath) && r.DirectoryPath != currentPath)
-            .Select(r => {
-                string relativePath = r.DirectoryPath.Substring(currentPath.Length).TrimStart('/');
-                return relativePath.Split('/')[0];
-            })
+            .Select(
+                r => {
+                    string relativePath = r.DirectoryPath.Substring(currentPath.Length).TrimStart('/');
+                    return relativePath.Split('/')[0];
+                }
+            )
             .Distinct()
             .OrderBy(d => d)
             .ToList();
@@ -133,8 +146,10 @@ public partial class ResourceTreeGenerator : EditorPlugin {
         // 生成子目录的嵌套类
         foreach (var subDir in subDirectories) {
             string className = ToClassName(subDir);
-            string subPath = string.IsNullOrEmpty(currentPath) ? subDir : $"{currentPath}/{subDir}";
-            
+            string subPath = string.IsNullOrEmpty(currentPath)
+                ? subDir
+                : $"{currentPath}/{subDir}";
+
             code.AppendLine();
             code.AppendLine($"{indent}public static class {className} {{");
             GenerateNestedStructure(code, resources, subPath, indentLevel + 1);
@@ -142,57 +157,62 @@ public partial class ResourceTreeGenerator : EditorPlugin {
         }
     }
 
-    private string ToClassName(string path) {
+    private static string ToClassName(string path) {
         if (string.IsNullOrEmpty(path))
             return "Root";
 
-        // 将路径转换为类名
-        var parts = path.Split('/', '\\');
-        var className = string.Join(
-            "",
-            parts.Select(
-                part =>
-                    System.Globalization.CultureInfo.CurrentCulture.TextInfo.ToTitleCase(part.ToLower())
-                        .Replace("-", "")
-                        .Replace("_", "")
-            )
-        );
+        // 复用 ToFieldName 的逻辑
+        string className = ToFieldName(path);
 
-        // 确保类名以字母开头
-        if (char.IsDigit(className[0])) {
+        // 移除开头的 @ 或 _ 前缀
+        className = className.TrimStart('@', '_');
+
+        // 确保首字母大写
+        if (!string.IsNullOrEmpty(className) && char.IsLower(className[0])) {
+            className = char.ToUpper(className[0]) + className.Substring(1);
+        }
+
+        // 确保类名不为空且以字母开头
+        if (string.IsNullOrEmpty(className) || char.IsDigit(className[0])) {
             className = "C" + className;
+        }
+
+        // 检查C#关键字冲突
+        if (IsCSharpKeyword(className)) {
+            className = "@" + className;
         }
 
         return className;
     }
 
-    private string ToFieldName(string fileName) {
+    private static string ToFieldName(string fileName) {
         // 只保留字母、数字和下划线
         var result = new System.Text.StringBuilder();
         foreach (char c in fileName) {
             if (char.IsLetterOrDigit(c)) {
                 result.Append(c);
-            } else {
+            }
+            else {
                 result.Append('_');
             }
         }
-        
+
         string fieldName = result.ToString();
-        
+
         // 确保字段名以字母或下划线开头
         if (string.IsNullOrEmpty(fieldName) || char.IsDigit(fieldName[0])) {
             fieldName = "_" + fieldName;
         }
-        
+
         // 检查C#关键字冲突
         if (IsCSharpKeyword(fieldName)) {
             fieldName = "@" + fieldName;
         }
-        
+
         return fieldName;
     }
-    
-    private bool IsCSharpKeyword(string name) {
+
+    private static bool IsCSharpKeyword(string name) {
         var keywords = new HashSet<string> {
             "abstract", "as", "base", "bool", "break", "byte", "case", "catch", "char", "checked",
             "class", "const", "continue", "decimal", "default", "delegate", "do", "double", "else",
@@ -206,7 +226,7 @@ public partial class ResourceTreeGenerator : EditorPlugin {
             "dynamic", "equals", "from", "get", "global", "group", "into", "join", "let", "nameof",
             "on", "orderby", "partial", "remove", "select", "set", "value", "var", "when", "where", "yield"
         };
-        return keywords.Contains(name.ToLower());
+        return keywords.Contains(name);
     }
 
     private class ResourceInfo {

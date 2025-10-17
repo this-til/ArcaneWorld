@@ -32,8 +32,11 @@ using System.Reflection;
 /// }
 /// ```
 public partial class Plugin : EditorPlugin {
-    string toolname_add = "C# Custom Types: Register";
-    string toolname_clear = "C# Custom Types: Clear";
+
+    string toolNameAdd = "C# Custom Types: Register";
+
+    string toolNameClear = "C# Custom Types: Clear";
+
     List<string> types = new List<string>();
 
     public void RegCustomTypes() {
@@ -45,7 +48,7 @@ public partial class Plugin : EditorPlugin {
             if (target == null) {
                 continue;
             }
-            
+
             if (!item.IsSubclassOf(typeof(Resource)) && !item.IsSubclassOf(typeof(Node))) {
                 GD.Print($"CustomTypes can be Godot.Resource or Godot.Node, but not {item}!");
                 continue;
@@ -57,14 +60,16 @@ public partial class Plugin : EditorPlugin {
                 GD.Print($"CustomTypes can be Godot.Script, but not {target.ScriptPath}!");
                 continue;
             }
-            
+
             // Script script = (Script) ResourceLoader.Load(target.ScriptPath);
             // Script script = ResourceLoader.Load<Script>(target.ScriptPath);
             Texture2D? icon = new Texture2D();
             if (target.Icon != "") {
                 icon = ResourceLoader.Load(target.Icon) as Texture2D;
             }
-            string name = target.Name == "" ? item.Name : target.Name;
+            string name = target.Name == ""
+                ? item.Name
+                : target.Name;
             AddCustomType(name, item.BaseType!.Name, script, icon);
             types.Add(name);
 
@@ -73,14 +78,14 @@ public partial class Plugin : EditorPlugin {
     }
 
     public override void _EnterTree() {
-        AddToolMenuItem(toolname_add, new Callable(this, nameof(RegCustomTypes)));
-        AddToolMenuItem(toolname_clear, new Callable(this, nameof(ClearCustomType)));
+        AddToolMenuItem(toolNameAdd, new Callable(this, nameof(RegCustomTypes)));
+        AddToolMenuItem(toolNameClear, new Callable(this, nameof(ClearCustomType)));
         RegCustomTypes();
     }
 
     public override void _ExitTree() {
-        RemoveToolMenuItem(toolname_add);
-        RemoveToolMenuItem(toolname_clear);
+        RemoveToolMenuItem(toolNameAdd);
+        RemoveToolMenuItem(toolNameClear);
         ClearCustomType();
     }
 
@@ -90,6 +95,7 @@ public partial class Plugin : EditorPlugin {
             GD.Print($"RemoveCustomType: {item}");
         }
     }
+
 }
 
 #endif

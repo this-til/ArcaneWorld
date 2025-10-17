@@ -5,7 +5,7 @@ namespace ArcaneWorld.Register;
 
 public partial class MetalMaterialManage : RegisterManage<MetalMaterial> {
 
-    public override void setup() {
+    protected override void setup() {
         base.setup();
     }
 
@@ -13,7 +13,7 @@ public partial class MetalMaterialManage : RegisterManage<MetalMaterial> {
 
 public partial class MetalMaterial : MaterialComponent {
 
-    public override void setup() {
+    protected override void setup() {
         base.setup();
 
         // 锭

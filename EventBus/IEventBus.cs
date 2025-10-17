@@ -7,7 +7,8 @@ using System.Linq;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
-using log4net;
+using CommonUtil;
+using CommonUtil.Log;
 
 namespace EventBus;
 
@@ -36,7 +37,7 @@ public interface IEventBus {
 
 }
 
-public class EventBus : IEventBus {
+public class EventBus : IEventBus, IDisposable {
 
     protected readonly IEnumerable<IEventRegistrantFilter> eventRegistrantFilterList;
 
@@ -51,6 +52,8 @@ public class EventBus : IEventBus {
     public ILog? log { get; }
 
     protected readonly ReaderWriterLockSlim readerWriterLockSlim = new ReaderWriterLockSlim(LockRecursionPolicy.SupportsRecursion);
+
+    private bool disposed = false;
 
     /// <summary>
     /// 所有的注册者
@@ -658,6 +661,46 @@ public class EventBus : IEventBus {
 
         public ILog? log;
 
+    }
+
+    /// <summary>
+    /// 清理 EventBus 资源
+    /// </summary>
+    public void Dispose() {
+        Dispose(true);
+        GC.SuppressFinalize(this);
+    }
+
+    protected virtual void Dispose(bool disposing) {
+        if (disposed) {
+            return;
+        }
+
+        if (disposing) {
+            // 清理托管资源
+            readerWriterLockSlim.EnterWriteLock();
+            try {
+                // 清空所有注册者
+                registrantMap.Clear();
+                
+                // 清空所有事件触发器
+                eventTriggerMap.Clear();
+                
+                // 清空类型映射
+                sonTypeMap.Clear();
+                
+                // 清空转换映射
+                convertAwaitMap.Clear();
+            }
+            finally {
+                readerWriterLockSlim.ExitWriteLock();
+            }
+
+            // 释放锁
+            readerWriterLockSlim.Dispose();
+        }
+
+        disposed = true;
     }
 
 }

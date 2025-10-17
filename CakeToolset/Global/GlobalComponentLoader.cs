@@ -1,17 +1,16 @@
-﻿using ArcaneWorld.Util;
-using Godot;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
-using ArcaneWorld.Attribute;
+﻿using System.Reflection;
+using CakeToolset.Attribute;
 using CommonUtil.Extensions;
-using log4net;
-using Array = Godot.Collections.Array;
+using Godot;
 using FileAccess = Godot.FileAccess;
 
-namespace ArcaneWorld.Global;
+namespace CakeToolset.Global;
 
-public partial class AssemblyLoadManage : SimpleNode<AssemblyLoadManage> {
+[Log]
+[Tool]
+public partial class GlobalComponentLoader : Node, ISerializationListener {
+
+    public static GlobalComponentLoader instance { get; private set; } = null!;
 
     public IReadOnlyList<Assembly> loadAssembly { get; private set; } = null!;
 
@@ -19,11 +18,25 @@ public partial class AssemblyLoadManage : SimpleNode<AssemblyLoadManage> {
 
     public IReadOnlyList<(JsonConverterAutomaticLoadAttribute attribute, Type type )> jsonConverterAutomaticLoadAttributeTypes { get; private set; } = null!;
 
-    private ILog log = null!;
+    public IReadOnlyList<Type> componentType { get; private set; } = null!;
+
+    public IReadOnlyDictionary<Type, IGlobalComponent> componentMap { get; private set; } = null!;
+
+    public IReadOnlyList<IGlobalComponent> componentList { get; private set; } = null!;
+
+    private bool initialized;
 
     public override void _Ready() {
         base._Ready();
-        log = LogManager.GetLogger(GetType());
+        initialize();
+    }
+
+    void initialize() {
+        instance = this;
+
+        if (initialized) {
+            return;
+        }
 
         const string configPath = "res://assembly_load.config.json";
 
@@ -76,6 +89,56 @@ public partial class AssemblyLoadManage : SimpleNode<AssemblyLoadManage> {
             .Select(t => (attribute: t.GetCustomAttribute<JsonConverterAutomaticLoadAttribute>(), t))
             .Where(t => t.attribute is not null)
             .ToList()!;
+
+        componentType = list
+            .Where(t => !t.IsAbstract)
+            .Where(t => typeof(IGlobalComponent).IsAssignableFrom(t))
+            .ToList();
+
+        componentMap = componentType
+            .TrySelect(t => (type: t, component: (IGlobalComponent)Activator.CreateInstance(t)!), (type, exception) => log.Error($"创建 {type} 的实例失败:", exception))
+            .ToDictionary(t => t.type, t => t.component);
+
+        componentList = componentMap.Values.OrderByDescending(c => c.priority).ToList();
+
+        componentList
+            .Peek(c => AddChild(c.asNode))
+            .TryPeek(
+                c => c.initialize(),
+                (component, exception) => log.Error($"初始化 {component.GetType()} 时出现错误:", exception)
+            )
+            .End();
+
+    }
+
+    void terminate() {
+        initialized = false;
+
+        instance = null!;
+
+        loadAssembly = null!;
+        eventBusSubscriberAttributeTypes = null!;
+        jsonConverterAutomaticLoadAttributeTypes = null!;
+        componentType = null!;
+
+        componentList?
+            .TryPeek(
+                c => c.terminate(),
+                (component, exception) => log.Error($"卸载 {component.GetType()} 时出现错误:", exception)
+            )
+            .End();
+
+        componentList = null!;
+    }
+
+    public void OnBeforeSerialize() {
+        log.Info("OnBeforeSerialize...");
+        terminate();
+    }
+
+    public void OnAfterDeserialize() {
+        log.Info("OnAfterDeserialize...");
+        initialize();
     }
 
 }

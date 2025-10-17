@@ -5,11 +5,15 @@ using System.Collections;
 
 namespace CakeToolset;
 
-public class R_AdditionalDataKey : RegisterManage<AdditionalDataKey> {
+public partial class R_AdditionalDataKey : RegisterManage<AdditionalDataKey> {
+
+    protected override void setup() {
+        base.setup();
+    }
 
 }
 
-public abstract class AdditionalDataKey : RegisterBasics {
+public abstract partial class AdditionalDataKey : RegisterBasics {
 
     public abstract Type valueType { get; }
 
@@ -29,7 +33,9 @@ public partial class AdditionalDataKey<T> : AdditionalDataKey {
 public class AdditionalDataMap : ICloneable, IEnumerable<KeyValuePair<AdditionalDataKey, object>>, IDisposable {
 
     internal EqDictionary<AdditionalDataKey, object> map = new EqDictionary<AdditionalDataKey, object>();
+
     internal volatile bool needsCopy = false;
+
     private readonly ReaderWriterLockSlim rwLock = new ReaderWriterLockSlim();
 
     public V get<V>(AdditionalDataKey<V> additionalDataKey) {
@@ -53,7 +59,7 @@ public class AdditionalDataMap : ICloneable, IEnumerable<KeyValuePair<Additional
 
             // 确保有独立的副本
             ensureUniqueCopyUnsafe();
-            
+
             V defValue = additionalDataKey.defValue!;
             map.Add(additionalDataKey, defValue);
             return defValue;
@@ -68,7 +74,7 @@ public class AdditionalDataMap : ICloneable, IEnumerable<KeyValuePair<Additional
         try {
             // 确保有独立的副本
             ensureUniqueCopyUnsafe();
-            
+
             map[additionalDataKey] = v!;
             return this;
         }
@@ -184,14 +190,14 @@ public class AdditionalDataMap : ICloneable, IEnumerable<KeyValuePair<Additional
 /// 线程安全：支持多线程并发读取
 /// </summary>
 public class ReadOnlyAdditionalDataMap : IEnumerable<KeyValuePair<AdditionalDataKey, object>> {
-    
+
     private readonly EqDictionary<AdditionalDataKey, object> map;
-    
+
     // 内部构造函数，只能通过 AdditionalDataMap 转换创建
     internal ReadOnlyAdditionalDataMap(EqDictionary<AdditionalDataKey, object> map) {
         this.map = map;
     }
-    
+
     /// <summary>
     /// 获取指定键的值，如果不存在则返回默认值（不会修改底层数据）
     /// 线程安全：多个线程可以同时调用此方法
@@ -205,17 +211,17 @@ public class ReadOnlyAdditionalDataMap : IEnumerable<KeyValuePair<AdditionalData
         // 只读版本不能修改底层数据，直接返回默认值
         return additionalDataKey.defValue;
     }
-    
+
     /// <summary>
     /// 检查是否包含指定的键
     /// </summary>
     public bool containsKey(AdditionalDataKey key) => map.ContainsKey(key);
-    
+
     /// <summary>
     /// 获取键值对数量
     /// </summary>
     public int count => map.Count;
-    
+
     /// <summary>
     /// 转换为可修改的 AdditionalDataMap
     /// 使用 Copy-on-Write 策略，不会立即复制数据
@@ -226,7 +232,7 @@ public class ReadOnlyAdditionalDataMap : IEnumerable<KeyValuePair<AdditionalData
         mutable.needsCopy = true;
         return mutable;
     }
-    
+
     /// <summary>
     /// 获取所有键值对的枚举器（只读）
     /// 注意：如果在枚举期间底层数据被修改，可能会抛出异常
@@ -235,25 +241,25 @@ public class ReadOnlyAdditionalDataMap : IEnumerable<KeyValuePair<AdditionalData
         // 为了避免枚举期间的并发修改异常，创建快照
         return map.ToList().GetEnumerator();
     }
-    
+
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
-    
+
     public override bool Equals(object? obj) {
         if (this == obj) {
             return true;
         }
-        
+
         if (obj is ReadOnlyAdditionalDataMap readOnlyMap) {
             return map.Equals(readOnlyMap.map);
         }
-        
+
         if (obj is AdditionalDataMap mutableMap) {
             return map.Equals(mutableMap.map);
         }
-        
+
         return false;
     }
-    
-    public override int GetHashCode() => map.GetHashCode();
-}
 
+    public override int GetHashCode() => map.GetHashCode();
+
+}

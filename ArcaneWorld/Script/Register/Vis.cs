@@ -4,13 +4,14 @@ namespace ArcaneWorld.Register;
 
 public partial class VisManage : RegisterManage<Vis> {
 
-    public override void setup() {
+    protected override void setup() {
         base.setup();
     }
-
 }
 
 public partial class Vis : RegisterBasics {
+
+  
 
 }
 

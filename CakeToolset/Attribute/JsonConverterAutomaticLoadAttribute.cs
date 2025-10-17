@@ -1,4 +1,4 @@
-﻿namespace ArcaneWorld.Attribute;
+﻿namespace CakeToolset.Attribute;
 
 [AttributeUsage(AttributeTargets.Class)]
 public class JsonConverterAutomaticLoadAttribute: System.Attribute {

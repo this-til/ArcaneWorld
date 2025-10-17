@@ -145,7 +145,8 @@ public class RegisterManageGenerator : IIncrementalGenerator {
         CompilationUnitSyntax compilationUnit = GenerateCompilationUnit(classSymbol, classDeclarationSyntax, validFields);
 
         SourceText sourceText = SourceText.From(compilationUnit.NormalizeWhitespace().ToFullString(), Encoding.UTF8);
-        sourceContext.AddSource($"{classSymbol.Name}.g.cs", sourceText);
+        string fileName = GenerateUniqueFileName(classSymbol);
+        sourceContext.AddSource(fileName, sourceText);
     }
 
     protected virtual List<FieldDefinition> GetFieldDefinitions(SourceProductionContext sourceContext, INamedTypeSymbol classSymbol, MethodDeclarationSyntax setUpMethodDeclarationSyntax, SemanticModel semanticModel, ITypeSymbol? constraintType) {
@@ -367,7 +368,7 @@ public class RegisterManageGenerator : IIncrementalGenerator {
                 List<MemberDeclarationSyntax>(
                     NamespaceDeclaration(IdentifierName(classSymbol.ContainingNamespace.ToDisplayString()))
                         .AddMembers(
-                            ClassDeclaration(classSymbol.Name)
+                            GenerateClassDeclaration(classSymbol)
                                 .WithModifiers(TokenList(Token(SyntaxKind.PublicKeyword), Token(SyntaxKind.PartialKeyword)))
                                 .WithMembers(List<MemberDeclarationSyntax>())
                                 .AddMembers(
@@ -376,7 +377,8 @@ public class RegisterManageGenerator : IIncrementalGenerator {
                                             [
                                                 GenerateInstanceProperty(classSymbol),
                                                 GenerateMethod(validFields),
-                                                GenerateAwakeInitOverride(classSymbol, classDeclarationSyntax)
+                                                GenerateAwakeInitOverride(classSymbol, classDeclarationSyntax),
+                                                GenerateDisposeOverride(classSymbol, classDeclarationSyntax, validFields)
                                             ]
                                         )
                                         .Where(r => r is not null)
@@ -465,7 +467,7 @@ public class RegisterManageGenerator : IIncrementalGenerator {
             )
             .WithModifiers(
                 TokenList(
-                    Token(SyntaxKind.PublicKeyword),
+                    Token(SyntaxKind.ProtectedKeyword),
                     Token(SyntaxKind.OverrideKeyword)
                 )
             )
@@ -587,7 +589,7 @@ public class RegisterManageGenerator : IIncrementalGenerator {
             )
             .WithModifiers(
                 TokenList(
-                    Token(SyntaxKind.PublicKeyword),
+                    Token(SyntaxKind.ProtectedKeyword),
                     Token(SyntaxKind.OverrideKeyword)
                 )
             )
@@ -613,6 +615,121 @@ public class RegisterManageGenerator : IIncrementalGenerator {
                     )
                 )
             );
+    }
+
+    /// <summary>
+    /// 生成 dispose 方法重写（如果未重写）
+    /// </summary>
+    protected virtual MemberDeclarationSyntax? GenerateDisposeOverride(INamedTypeSymbol classSymbol, ClassDeclarationSyntax classDeclarationSyntax, List<FieldDefinition> validFields) {
+        // 检查是否已经重写了 dispose 方法
+        bool hasDisposeOverride = classDeclarationSyntax.Members
+            .OfType<MethodDeclarationSyntax>()
+            .Any(
+                method => method.Identifier.ValueText == "dispose" &&
+                          method.Modifiers.Any(m => m.IsKind(SyntaxKind.OverrideKeyword))
+            );
+
+        // 如果已经重写，则不生成
+        if (hasDisposeOverride) {
+            return null;
+        }
+
+        // 创建方法体的语句列表
+        var statements = new List<StatementSyntax>();
+
+        // 调用基类的 dispose
+        statements.Add(
+            ExpressionStatement(
+                InvocationExpression(
+                    MemberAccessExpression(
+                        SyntaxKind.SimpleMemberAccessExpression,
+                        BaseExpression(),
+                        IdentifierName("dispose")
+                    )
+                )
+            )
+        );
+
+        // 将所有静态属性设置为 null!
+        foreach (var field in validFields) {
+            statements.Add(
+                ExpressionStatement(
+                    AssignmentExpression(
+                        SyntaxKind.SimpleAssignmentExpression,
+                        IdentifierName(field.Name),
+                        PostfixUnaryExpression(
+                            SyntaxKind.SuppressNullableWarningExpression,
+                            LiteralExpression(SyntaxKind.NullLiteralExpression)
+                        )
+                    )
+                )
+            );
+        }
+
+        // 将 instance 设置为 null!
+        statements.Add(
+            ExpressionStatement(
+                AssignmentExpression(
+                    SyntaxKind.SimpleAssignmentExpression,
+                    IdentifierName("instance"),
+                    PostfixUnaryExpression(
+                        SyntaxKind.SuppressNullableWarningExpression,
+                        LiteralExpression(SyntaxKind.NullLiteralExpression)
+                    )
+                )
+            )
+        );
+
+        // 生成 dispose 方法重写
+        return MethodDeclaration(
+                PredefinedType(Token(SyntaxKind.VoidKeyword)),
+                Identifier("dispose")
+            )
+            .WithModifiers(
+                TokenList(
+                    Token(SyntaxKind.ProtectedKeyword),
+                    Token(SyntaxKind.OverrideKeyword)
+                )
+            )
+            .WithBody(
+                Block(statements.ToArray())
+            );
+    }
+
+    /// <summary>
+    /// 生成类声明，正确处理泛型类
+    /// </summary>
+    protected virtual ClassDeclarationSyntax GenerateClassDeclaration(INamedTypeSymbol classSymbol) {
+        var classDeclaration = ClassDeclaration(classSymbol.Name);
+        
+        // 如果是泛型类，添加类型参数
+        if (classSymbol.IsGenericType) {
+            var typeParameters = classSymbol.TypeParameters.Select(tp => 
+                TypeParameter(Identifier(tp.Name))
+            ).ToArray();
+            
+            classDeclaration = classDeclaration.WithTypeParameterList(
+                TypeParameterList(SeparatedList(typeParameters))
+            );
+        }
+        
+        return classDeclaration;
+    }
+
+    /// <summary>
+    /// 生成唯一的文件名，避免泛型类和非泛型类之间的冲突
+    /// </summary>
+    protected virtual string GenerateUniqueFileName(INamedTypeSymbol classSymbol) {
+        string baseName = classSymbol.Name;
+        string generatorName = GetType().Name;
+        
+        // 如果是泛型类，添加类型参数信息
+        if (classSymbol.IsGenericType) {
+            string typeParameters = string.Join("_", classSymbol.TypeParameters.Select(tp => tp.Name));
+            return $"{baseName}_{typeParameters}.{generatorName}.cs";
+        }
+        
+        return $"{baseName}.{generatorName}.cs";
     }
 
 }
