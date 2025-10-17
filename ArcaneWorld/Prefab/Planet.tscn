@@ -1,0 +1,10 @@
+[gd_scene load_steps=3 format=3 uid="uid://bin3c1skftg18"]
+
+[ext_resource type="Script" uid="uid://e37wk58y822l" path="res://Script/Planet/Planet.cs" id="1_5js8h"]
+[ext_resource type="Script" uid="uid://cqn3fdypd6dxi" path="res://Script/Planet/LongitudeLatitude.cs" id="2_xva0s"]
+
+[node name="Planet" type="Node3D"]
+script = ExtResource("1_5js8h")
+
+[node name="LongitudeLatitude" type="Node3D" parent="."]
+script = ExtResource("2_xva0s")
