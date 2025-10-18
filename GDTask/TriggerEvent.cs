@@ -181,7 +181,9 @@ namespace Fractural.Tasks
 
         public void Add(ITriggerHandler<T> handler)
         {
-            if (handler == null) throw new ArgumentNullException(nameof(handler));
+            if (handler == null) {
+                throw new ArgumentNullException(nameof(handler));
+            }
 
             // zero node.
             if (head == null)
@@ -236,7 +238,9 @@ namespace Fractural.Tasks
 
         public void Remove(ITriggerHandler<T> handler)
         {
-            if (handler == null) throw new ArgumentNullException(nameof(handler));
+            if (handler == null) {
+                throw new ArgumentNullException(nameof(handler));
+            }
 
             if (iteratingNode != null && iteratingNode == handler)
             {

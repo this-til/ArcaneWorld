@@ -41,7 +41,7 @@ public class LinqExtensionsTests {
         var source = new[] { 1, 2, 3 };
 
         // Act & Assert
-        var action = () => source.Peek(null!).ToList();
+        var action = () => source.Peek((Action<int>)null!).ToList();
         action.Should()
             .Throw<ArgumentNullException>()
             .WithParameterName("action");
@@ -364,7 +364,6 @@ public class LinqExtensionsTests {
         filteredItems.Should().Equal(1, 3, 5, 7);
     }
 
-
     [Fact]
     public void NotNull_WithMixedNulls_ShouldFilterOutNulls() {
         // Arrange
@@ -400,7 +399,6 @@ public class LinqExtensionsTests {
         // Assert
         result.Should().Equal("a", "b", "c");
     }
-
 
     [Fact]
     public void ControlQuantity_WithExactQuantity_ShouldReturnAllItems() {

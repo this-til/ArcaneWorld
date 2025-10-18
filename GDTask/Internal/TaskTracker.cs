@@ -68,7 +68,9 @@ namespace Fractural.Tasks
         {
 #if DEBUG
             dirty = true;
-            if (!EditorEnableState.EnableTracking) return;
+            if (!EditorEnableState.EnableTracking) {
+                return;
+            }
             var stackTrace = EditorEnableState.EnableStackTrace ? new StackTrace(skipFrame, true).CleanupAsyncStackTrace() : "";
 
             string typeName;
@@ -91,7 +93,9 @@ namespace Fractural.Tasks
         {
 #if DEBUG
             dirty = true;
-            if (!EditorEnableState.EnableTracking) return;
+            if (!EditorEnableState.EnableTracking) {
+                return;
+            }
             var success = tracking.TryRemove(task);
 #endif
         }

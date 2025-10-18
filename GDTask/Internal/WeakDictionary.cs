@@ -34,7 +34,9 @@ namespace Fractural.Tasks.Internal
             }
             finally
             {
-                if (lockTaken) gate.Exit(false);
+                if (lockTaken) {
+                    gate.Exit(false);
+                }
             }
         }
 
@@ -55,7 +57,9 @@ namespace Fractural.Tasks.Internal
             }
             finally
             {
-                if (lockTaken) gate.Exit(false);
+                if (lockTaken) {
+                    gate.Exit(false);
+                }
             }
         }
 
@@ -75,7 +79,9 @@ namespace Fractural.Tasks.Internal
             }
             finally
             {
-                if (lockTaken) gate.Exit(false);
+                if (lockTaken) {
+                    gate.Exit(false);
+                }
             }
         }
 
@@ -105,7 +111,9 @@ namespace Fractural.Tasks.Internal
             {
                 // add entry
                 var successAdd = AddToBuckets(buckets, key, value, keyEqualityComparer.GetHashCode(key));
-                if (successAdd) size++;
+                if (successAdd) {
+                    size++;
+                }
                 return successAdd;
             }
         }
@@ -143,7 +151,9 @@ namespace Fractural.Tasks.Internal
                     else
                     {
                         Remove(hashIndex, entry);
-                        if (targetBuckets[hashIndex] == null) goto TRY_ADD_AGAIN; // add new entry
+                        if (targetBuckets[hashIndex] == null) {
+                            goto TRY_ADD_AGAIN; // add new entry
+                        }
                     }
 
                     if (entry.Next != null)
@@ -269,7 +279,9 @@ namespace Fractural.Tasks.Internal
             }
             finally
             {
-                if (lockTaken) gate.Exit(false);
+                if (lockTaken) {
+                    gate.Exit(false);
+                }
             }
 
             return listIndex;

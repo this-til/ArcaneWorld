@@ -22,13 +22,18 @@ namespace Fractural.Tasks.Triggers
         // Special for single operation.
         public static T GetImmediateChild<T>(this Node node, bool includeRoot = true)
         {
-            if (node == null) throw new ArgumentNullException(nameof(node));
-            if (includeRoot && node is T castedRoot)
+            if (node == null) {
+                throw new ArgumentNullException(nameof(node));
+            }
+            if (includeRoot && node is T castedRoot) {
                 return castedRoot;
+            }
             else
             {
                 foreach (Node child in node.GetChildren())
-                    if (child is T castedChild) return castedChild;
+                    if (child is T castedChild) {
+                        return castedChild;
+                    }
             }
             return default(T);
         }
@@ -43,8 +48,9 @@ namespace Fractural.Tasks.Triggers
         public static T GetOrAddImmediateChild<T>(this Node node) where T : Node, new()
         {
             T child = GetImmediateChild<T>(node);
-            if (child == null)
+            if (child == null) {
                 child = AddImmediateChild<T>(node);
+            }
             return child;
         }
 

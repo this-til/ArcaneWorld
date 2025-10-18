@@ -39,7 +39,9 @@ namespace Fractural.Tasks
                     if (waitingList.Length == waitingListCount)
                     {
                         var newLength = waitingListCount * 2;
-                        if ((uint)newLength > MaxArrayLength) newLength = MaxArrayLength;
+                        if ((uint)newLength > MaxArrayLength) {
+                            newLength = MaxArrayLength;
+                        }
 
                         Callback[] newArray = new Callback[newLength];
                         Array.Copy(waitingList, newArray, waitingListCount);
@@ -54,7 +56,9 @@ namespace Fractural.Tasks
                     if (actionList.Length == actionListCount)
                     {
                         var newLength = actionListCount * 2;
-                        if ((uint)newLength > MaxArrayLength) newLength = MaxArrayLength;
+                        if ((uint)newLength > MaxArrayLength) {
+                            newLength = MaxArrayLength;
+                        }
 
                         Callback[] newArray = new Callback[newLength];
                         Array.Copy(actionList, newArray, actionListCount);
@@ -66,7 +70,9 @@ namespace Fractural.Tasks
             }
             finally
             {
-                if (lockTaken) gate.Exit(false);
+                if (lockTaken) {
+                    gate.Exit(false);
+                }
             }
         }
 
@@ -93,12 +99,16 @@ namespace Fractural.Tasks
                 try
                 {
                     gate.Enter(ref lockTaken);
-                    if (actionListCount == 0) return;
+                    if (actionListCount == 0) {
+                        return;
+                    }
                     dequing = true;
                 }
                 finally
                 {
-                    if (lockTaken) gate.Exit(false);
+                    if (lockTaken) {
+                        gate.Exit(false);
+                    }
                 }
             }
 
@@ -126,7 +136,9 @@ namespace Fractural.Tasks
                 }
                 finally
                 {
-                    if (lockTaken) gate.Exit(false);
+                    if (lockTaken) {
+                        gate.Exit(false);
+                    }
                 }
             }
         }

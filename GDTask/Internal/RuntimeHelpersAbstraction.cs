@@ -14,13 +14,25 @@ namespace Fractural.Tasks.Internal
         static bool WellKnownNoReferenceContainsTypeInitialize(Type t)
         {
             // The primitive types are Boolean, Byte, SByte, Int16, UInt16, Int32, UInt32, Int64, UInt64, IntPtr, UIntPtr, Char, Double, and Single.
-            if (t.IsPrimitive) return true;
+            if (t.IsPrimitive) {
+                return true;
+            }
 
-            if (t.IsEnum) return true;
-            if (t == typeof(DateTime)) return true;
-            if (t == typeof(DateTimeOffset)) return true;
-            if (t == typeof(Guid)) return true;
-            if (t == typeof(decimal)) return true;
+            if (t.IsEnum) {
+                return true;
+            }
+            if (t == typeof(DateTime)) {
+                return true;
+            }
+            if (t == typeof(DateTimeOffset)) {
+                return true;
+            }
+            if (t == typeof(Guid)) {
+                return true;
+            }
+            if (t == typeof(decimal)) {
+                return true;
+            }
 
             // unwrap nullable
             if (t.IsGenericType && t.GetGenericTypeDefinition() == typeof(Nullable<>))
@@ -29,12 +41,24 @@ namespace Fractural.Tasks.Internal
             }
 
             // or add other wellknown types(Vector, etc...) here
-            if (t == typeof(Vector2)) return true;
-            if (t == typeof(Vector3)) return true;
-            if (t == typeof(Color)) return true;
-            if (t == typeof(Rect2)) return true;
-            if (t == typeof(Aabb)) return true;
-            if (t == typeof(Quaternion)) return true;
+            if (t == typeof(Vector2)) {
+                return true;
+            }
+            if (t == typeof(Vector3)) {
+                return true;
+            }
+            if (t == typeof(Color)) {
+                return true;
+            }
+            if (t == typeof(Rect2)) {
+                return true;
+            }
+            if (t == typeof(Aabb)) {
+                return true;
+            }
+            if (t == typeof(Quaternion)) {
+                return true;
+            }
 
             return false;
         }

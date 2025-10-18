@@ -37,8 +37,9 @@ namespace Fractural.Tasks.Triggers
 
         public override void _Notification(int what)
         {
-            if (what == NotificationPredelete)
+            if (what == NotificationPredelete) {
                 OnDestroy();
+            }
         }
 
         void OnDestroy()
@@ -51,7 +52,9 @@ namespace Fractural.Tasks.Triggers
 
         public GDTask OnDestroyAsync()
         {
-            if (called) return GDTask.CompletedTask;
+            if (called) {
+                return GDTask.CompletedTask;
+            }
 
             GDTaskCompletionSource tcs = new GDTaskCompletionSource();
 

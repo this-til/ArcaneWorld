@@ -38,7 +38,9 @@ namespace Fractural.Tasks.Internal
                     if (waitingList.Length == waitingListCount)
                     {
                         var newLength = waitingListCount * 2;
-                        if ((uint)newLength > MaxArrayLength) newLength = MaxArrayLength;
+                        if ((uint)newLength > MaxArrayLength) {
+                            newLength = MaxArrayLength;
+                        }
 
                         Action[] newArray = new Action[newLength];
                         Array.Copy(waitingList, newArray, waitingListCount);
@@ -53,7 +55,9 @@ namespace Fractural.Tasks.Internal
                     if (actionList.Length == actionListCount)
                     {
                         var newLength = actionListCount * 2;
-                        if ((uint)newLength > MaxArrayLength) newLength = MaxArrayLength;
+                        if ((uint)newLength > MaxArrayLength) {
+                            newLength = MaxArrayLength;
+                        }
 
                         Action[] newArray = new Action[newLength];
                         Array.Copy(actionList, newArray, actionListCount);
@@ -65,7 +69,9 @@ namespace Fractural.Tasks.Internal
             }
             finally
             {
-                if (lockTaken) gate.Exit(false);
+                if (lockTaken) {
+                    gate.Exit(false);
+                }
             }
         }
 
@@ -120,12 +126,16 @@ namespace Fractural.Tasks.Internal
                 try
                 {
                     gate.Enter(ref lockTaken);
-                    if (actionListCount == 0) return;
+                    if (actionListCount == 0) {
+                        return;
+                    }
                     dequing = true;
                 }
                 finally
                 {
-                    if (lockTaken) gate.Exit(false);
+                    if (lockTaken) {
+                        gate.Exit(false);
+                    }
                 }
             }
 
@@ -161,7 +171,9 @@ namespace Fractural.Tasks.Internal
                 }
                 finally
                 {
-                    if (lockTaken) gate.Exit(false);
+                    if (lockTaken) {
+                        gate.Exit(false);
+                    }
                 }
             }
         }

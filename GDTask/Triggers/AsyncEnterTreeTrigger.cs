@@ -20,7 +20,9 @@ namespace Fractural.Tasks.Triggers
 
         public GDTask EnterTreeAsync()
         {
-            if (calledEnterTree) return GDTask.CompletedTask;
+            if (calledEnterTree) {
+                return GDTask.CompletedTask;
+            }
 
             return ((IAsyncOneShotTrigger)new AsyncTriggerHandler<AsyncUnit>(this, true)).OneShotAsync();
         }

@@ -9,7 +9,9 @@ namespace Fractural.Tasks.Internal
         public static void ThrowArgumentNullException<T>(T value, string paramName)
           where T : class
         {
-            if (value == null) ThrowArgumentNullExceptionCore(paramName);
+            if (value == null) {
+                ThrowArgumentNullExceptionCore(paramName);
+            }
         }
 
         [MethodImpl(MethodImplOptions.NoInlining)]
@@ -58,7 +60,9 @@ namespace Fractural.Tasks.Internal
         public static void ThrowWhenContinuationIsAlreadyRegistered<T>(T continuationField)
           where T : class
         {
-            if (continuationField != null) ThrowInvalidOperationExceptionCore("continuation is already registered.");
+            if (continuationField != null) {
+                ThrowInvalidOperationExceptionCore("continuation is already registered.");
+            }
         }
 
         [MethodImpl(MethodImplOptions.NoInlining)]

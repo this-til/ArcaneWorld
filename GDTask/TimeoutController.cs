@@ -102,7 +102,9 @@ namespace Fractural.Tasks
 
         public void Dispose()
         {
-            if (isDisposed) return;
+            if (isDisposed) {
+                return;
+            }
 
             try
             {

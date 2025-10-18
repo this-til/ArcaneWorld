@@ -1,10 +1,84 @@
-[gd_scene load_steps=3 format=3 uid="uid://bin3c1skftg18"]
+[gd_scene load_steps=13 format=3 uid="uid://bin3c1skftg18"]
 
 [ext_resource type="Script" uid="uid://e37wk58y822l" path="res://Script/Planet/Planet.cs" id="1_5js8h"]
 [ext_resource type="Script" uid="uid://cqn3fdypd6dxi" path="res://Script/Planet/LongitudeLatitude.cs" id="2_xva0s"]
+[ext_resource type="Shader" uid="uid://b61y1e0bpbey5" path="res://Shaders/Planet/LongitudeLatitude/LineAlpha.gdshader" id="3_xva0s"]
+[ext_resource type="Script" uid="uid://80gta14xqu1s" path="res://addons/zylann.atmosphere/planet_atmosphere.gd" id="4_uyuuk"]
+[ext_resource type="Shader" uid="uid://bixaf68e35s0f" path="res://addons/zylann.atmosphere/shaders/planet_atmosphere_clouds.gdshader" id="5_1oaqd"]
+[ext_resource type="Script" uid="uid://bmjowuxck5v32" path="res://addons/zylann.atmosphere/noise_cubemap.gd" id="6_rxshr"]
+[ext_resource type="Script" uid="uid://voxnbptif4nk" path="res://addons/SIsilicon.vfx.lens flare/lens-flare.gd" id="7_e5jy1"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_bo13y"]
+render_priority = 0
+shader = ExtResource("3_xva0s")
+shader_parameter/alpha_factor = 1.0
+shader_parameter/albedo = Color(1, 1, 1, 1)
+shader_parameter/albedo_texture_size = Vector2i(0, 0)
+shader_parameter/point_size = 0.0
+shader_parameter/roughness = 0.0
+shader_parameter/metallic_texture_channel = Vector4(0, 0, 0, 0)
+shader_parameter/specular = 0.0
+shader_parameter/metallic = 0.0
+shader_parameter/uv1_scale = Vector3(0, 0, 0)
+shader_parameter/uv1_offset = Vector3(0, 0, 0)
+shader_parameter/uv2_scale = Vector3(0, 0, 0)
+shader_parameter/uv2_offset = Vector3(0, 0, 0)
+
+[sub_resource type="FastNoiseLite" id="FastNoiseLite_uyuuk"]
+noise_type = 2
+frequency = 0.1
+
+[sub_resource type="NoiseTexture3D" id="NoiseTexture3D_1oaqd"]
+noise = SubResource("FastNoiseLite_uyuuk")
+seamless = true
+
+[sub_resource type="FastNoiseLite" id="FastNoiseLite_vnuk5"]
+domain_warp_enabled = true
+domain_warp_amplitude = 90.0
+domain_warp_frequency = 0.01
+domain_warp_fractal_octaves = 3
+
+[sub_resource type="Cubemap" id="Cubemap_gk7ee"]
+script = ExtResource("6_rxshr")
+noise = SubResource("FastNoiseLite_vnuk5")
+resolution = 256
+scale = Vector3(100, 100, 100)
+metadata/_custom_type_script = "uid://bmjowuxck5v32"
 
 [node name="Planet" type="Node3D"]
 script = ExtResource("1_5js8h")
 
 [node name="LongitudeLatitude" type="Node3D" parent="."]
 script = ExtResource("2_xva0s")
+radius = 120.0
+lineMaterial = SubResource("ShaderMaterial_bo13y")
+visibility = 1.0
+
+[node name="PlanetAtmosphere" type="Node3D" parent="."]
+script = ExtResource("4_uyuuk")
+planet_radius = 100.0
+atmosphere_height = 25.0
+custom_shader = ExtResource("5_1oaqd")
+shader_params/u_density = 0.1
+shader_params/u_scattering_strength = 15.0
+shader_params/u_scattering_wavelengths = Vector3(700, 530, 440)
+shader_params/u_atmosphere_modulate = Color(1, 1, 1, 1)
+shader_params/u_atmosphere_ambient_color = Color(0, 0, 0.002, 1)
+shader_params/u_cloud_density_scale = 0.2
+shader_params/u_cloud_bottom = 0.5
+shader_params/u_cloud_top = 0.75
+shader_params/u_cloud_blend = 0.5
+shader_params/u_cloud_shape_texture = SubResource("NoiseTexture3D_1oaqd")
+shader_params/u_cloud_shape_invert = 1.0
+shader_params/u_cloud_coverage_bias = 0.0
+shader_params/u_cloud_shape_factor = 0.1
+shader_params/u_cloud_shape_scale = 1.0
+shader_params/u_cloud_coverage_cubemap = SubResource("Cubemap_gk7ee")
+shader_params/u_sphere_depth_factor = 0.0
+
+[node name="LensFlare" type="Node" parent="."]
+script = ExtResource("7_e5jy1")
+metadata/_custom_type_script = "uid://voxnbptif4nk"
+
+[node name="Camera3D" type="Camera3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 171.51512)

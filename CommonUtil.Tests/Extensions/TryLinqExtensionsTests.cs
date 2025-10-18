@@ -40,7 +40,9 @@ public class TryLinqExtensionsTests
         // Act
         var result = source.TryPeek(
             x => {
-                if (x == 2) throw new InvalidOperationException("Test exception");
+                if (x == 2) {
+                    throw new InvalidOperationException("Test exception");
+                }
                 executedItems.Add(x);
             },
             (item, ex) => exceptions.Add((item, ex))
@@ -121,7 +123,9 @@ public class TryLinqExtensionsTests
         // Act
         var result = source.TrySelect(
             x => {
-                if (x == 2) throw new InvalidOperationException("Test exception");
+                if (x == 2) {
+                    throw new InvalidOperationException("Test exception");
+                }
                 return x * 2;
             },
             (item, ex) => {
@@ -204,7 +208,9 @@ public class TryLinqExtensionsTests
         // Act
         var result = source.TrySelectMany(
             x => {
-                if (x == 2) throw new InvalidOperationException("Test exception");
+                if (x == 2) {
+                    throw new InvalidOperationException("Test exception");
+                }
                 return Enumerable.Range(1, x);
             },
             (item, ex) => {
@@ -265,7 +271,9 @@ public class TryLinqExtensionsTests
 
         // Act
         var result = source.TryWhere(x => {
-            if (x == 3) throw new InvalidOperationException("Test exception");
+            if (x == 3) {
+                throw new InvalidOperationException("Test exception");
+            }
             return x % 2 == 0;
         }).ToList();
 
@@ -283,7 +291,9 @@ public class TryLinqExtensionsTests
         // Act
         var result = source.TryWhere(
             x => {
-                if (x == 3) throw new InvalidOperationException("Test exception");
+                if (x == 3) {
+                    throw new InvalidOperationException("Test exception");
+                }
                 return x % 2 == 0;
             },
             (item, ex) => exceptions.Add((item, ex))
@@ -378,7 +388,9 @@ public class TryLinqExtensionsTests
 
         // Act
         var result = source.TryWhere(x => {
-            if (x == 2 || x == 4) throw new InvalidOperationException("Test exception");
+            if (x == 2 || x == 4) {
+                throw new InvalidOperationException("Test exception");
+            }
             return x % 2 == 1; // 奇数
         }).ToList();
 
@@ -396,7 +408,9 @@ public class TryLinqExtensionsTests
         // Act
         var result = source.TryWhere(
             x => {
-                if (x == 2 || x == 4) throw new InvalidOperationException($"Exception for {x}");
+                if (x == 2 || x == 4) {
+                    throw new InvalidOperationException($"Exception for {x}");
+                }
                 return x % 2 == 1; // 奇数
             },
             (item, ex) => exceptions.Add((item, ex))
@@ -420,7 +434,9 @@ public class TryLinqExtensionsTests
         // Act
         var result = source.TryWhere(
             x => {
-                if (x == 2) throw new InvalidOperationException("Test exception");
+                if (x == 2) {
+                    throw new InvalidOperationException("Test exception");
+                }
                 return x % 2 == 1;
             },
             null

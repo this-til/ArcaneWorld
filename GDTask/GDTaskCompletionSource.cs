@@ -610,7 +610,9 @@ namespace Fractural.Tasks
         [DebuggerHidden]
         public bool TrySetCanceled(CancellationToken cancellationToken = default)
         {
-            if (UnsafeGetStatus() != GDTaskStatus.Pending) return false;
+            if (UnsafeGetStatus() != GDTaskStatus.Pending) {
+                return false;
+            }
 
             this.cancellationToken = cancellationToken;
             return TrySignalCompletion(GDTaskStatus.Canceled);
@@ -624,7 +626,9 @@ namespace Fractural.Tasks
                 return TrySetCanceled(oce.CancellationToken);
             }
 
-            if (UnsafeGetStatus() != GDTaskStatus.Pending) return false;
+            if (UnsafeGetStatus() != GDTaskStatus.Pending) {
+                return false;
+            }
 
             this.exception = new ExceptionHolder(ExceptionDispatchInfo.Capture(exception));
             return TrySignalCompletion(GDTaskStatus.Faulted);
@@ -786,7 +790,9 @@ namespace Fractural.Tasks
         [DebuggerHidden]
         public bool TrySetResult(T result)
         {
-            if (UnsafeGetStatus() != GDTaskStatus.Pending) return false;
+            if (UnsafeGetStatus() != GDTaskStatus.Pending) {
+                return false;
+            }
 
             this.result = result;
             return TrySignalCompletion(GDTaskStatus.Succeeded);
@@ -795,7 +801,9 @@ namespace Fractural.Tasks
         [DebuggerHidden]
         public bool TrySetCanceled(CancellationToken cancellationToken = default)
         {
-            if (UnsafeGetStatus() != GDTaskStatus.Pending) return false;
+            if (UnsafeGetStatus() != GDTaskStatus.Pending) {
+                return false;
+            }
 
             this.cancellationToken = cancellationToken;
             return TrySignalCompletion(GDTaskStatus.Canceled);
@@ -809,7 +817,9 @@ namespace Fractural.Tasks
                 return TrySetCanceled(oce.CancellationToken);
             }
 
-            if (UnsafeGetStatus() != GDTaskStatus.Pending) return false;
+            if (UnsafeGetStatus() != GDTaskStatus.Pending) {
+                return false;
+            }
 
             this.exception = new ExceptionHolder(ExceptionDispatchInfo.Capture(exception));
             return TrySignalCompletion(GDTaskStatus.Faulted);

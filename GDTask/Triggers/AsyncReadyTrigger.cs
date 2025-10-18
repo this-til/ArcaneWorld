@@ -23,7 +23,9 @@ namespace Fractural.Tasks.Triggers
 
         public GDTask ReadyAsync()
         {
-            if (called) return GDTask.CompletedTask;
+            if (called) {
+                return GDTask.CompletedTask;
+            }
 
             return ((IAsyncOneShotTrigger)new AsyncTriggerHandler<AsyncUnit>(this, true)).OneShotAsync();
         }

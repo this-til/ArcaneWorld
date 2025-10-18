@@ -24,7 +24,9 @@ public class RegisterSetupMethodCodeFixProvider : CodeFixProvider {
         var root = await context.Document.GetSyntaxRootAsync(context.CancellationToken).ConfigureAwait(false);
 
         var diagnostic = context.Diagnostics.FirstOrDefault(d => FixableDiagnosticIds.Contains(d.Id));
-        if (diagnostic == null) return;
+        if (diagnostic == null) {
+            return;
+        }
 
         var diagnosticSpan = diagnostic.Location.SourceSpan;
 
@@ -34,7 +36,9 @@ public class RegisterSetupMethodCodeFixProvider : CodeFixProvider {
             .OfType<ClassDeclarationSyntax>()
             .FirstOrDefault();
 
-        if (classDeclaration == null) return;
+        if (classDeclaration == null) {
+            return;
+        }
 
         // 注册代码修复
         var action = CodeAction.Create(
@@ -47,7 +51,9 @@ public class RegisterSetupMethodCodeFixProvider : CodeFixProvider {
 
     private static async Task<Document> AddSetupMethod(Document document, ClassDeclarationSyntax classDeclaration, CancellationToken cancellationToken) {
         var root = await document.GetSyntaxRootAsync(cancellationToken).ConfigureAwait(false);
-        if (root == null) return document;
+        if (root == null) {
+            return document;
+        }
 
         // 创建 setup 方法
         var setupMethod = MethodDeclaration(PredefinedType(Token(SyntaxKind.VoidKeyword)), "setup")

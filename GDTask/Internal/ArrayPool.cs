@@ -57,7 +57,9 @@ namespace Fractural.Tasks.Internal
                 }
                 finally
                 {
-                    if (lockTaken) locks[index].Exit(false);
+                    if (lockTaken) {
+                        locks[index].Exit(false);
+                    }
                 }
             }
 
@@ -95,7 +97,9 @@ namespace Fractural.Tasks.Internal
                 }
                 finally
                 {
-                    if (lockTaken) locks[index].Exit(false);
+                    if (lockTaken) {
+                        locks[index].Exit(false);
+                    }
                 }
             }
         }

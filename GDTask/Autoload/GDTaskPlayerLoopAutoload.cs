@@ -59,7 +59,9 @@ namespace Fractural.Tasks
         {
             get
             {
-                if (s_Global != null) return s_Global;
+                if (s_Global != null) {
+                    return s_Global;
+                }
 
                 GDTaskPlayerLoopAutoload newInstance = new GDTaskPlayerLoopAutoload();
                 newInstance.Initialize();
@@ -119,8 +121,9 @@ namespace Fractural.Tasks
         {
             if (what == NotificationPredelete)
             {
-                if (Global == this)
+                if (Global == this) {
                     s_Global = null;
+                }
                 if (yielders != null)
                 {
                     foreach (ContinuationQueue yielder in yielders)

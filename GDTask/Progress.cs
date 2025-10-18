@@ -11,13 +11,17 @@ namespace Fractural.Tasks
     {
         public static IProgress<T> Create<T>(Action<T> handler)
         {
-            if (handler == null) return NullProgress<T>.Instance;
+            if (handler == null) {
+                return NullProgress<T>.Instance;
+            }
             return new AnonymousProgress<T>(handler);
         }
 
         public static IProgress<T> CreateOnlyValueChanged<T>(Action<T> handler, IEqualityComparer<T> comparer = null)
         {
-            if (handler == null) return NullProgress<T>.Instance;
+            if (handler == null) {
+                return NullProgress<T>.Instance;
+            }
             return new OnlyValueChangedProgress<T>(handler, comparer ?? GodotEqualityComparer.GetDefault<T>());
         }
 

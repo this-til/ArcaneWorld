@@ -47,12 +47,24 @@ namespace Fractural.Tasks.Internal
         {
             RuntimeTypeHandle t = type.TypeHandle;
 
-            if (t.Equals(vector2Type)) return (object)GodotEqualityComparer.Vector2;
-            if (t.Equals(vector3Type)) return (object)GodotEqualityComparer.Vector3;
-            if (t.Equals(colorType)) return (object)GodotEqualityComparer.Color;
-            if (t.Equals(rectType)) return (object)GodotEqualityComparer.Rect2;
-            if (t.Equals(AABBType)) return (object)GodotEqualityComparer.AABB;
-            if (t.Equals(quaternionType)) return (object)GodotEqualityComparer.Quaternion;
+            if (t.Equals(vector2Type)) {
+                return (object)GodotEqualityComparer.Vector2;
+            }
+            if (t.Equals(vector3Type)) {
+                return (object)GodotEqualityComparer.Vector3;
+            }
+            if (t.Equals(colorType)) {
+                return (object)GodotEqualityComparer.Color;
+            }
+            if (t.Equals(rectType)) {
+                return (object)GodotEqualityComparer.Rect2;
+            }
+            if (t.Equals(AABBType)) {
+                return (object)GodotEqualityComparer.AABB;
+            }
+            if (t.Equals(quaternionType)) {
+                return (object)GodotEqualityComparer.Quaternion;
+            }
 
             return null;
         }

@@ -21,6 +21,22 @@ public static class LinqExtensions {
         }
     }
 
+    public static IEnumerable<T> Peek<T>(this IEnumerable<T> source, Action<T, int> action) {
+        if (source == null) {
+            throw new ArgumentNullException(nameof(source));
+        }
+        if (action == null) {
+            throw new ArgumentNullException(nameof(action));
+        }
+
+        int i = 0;
+        foreach (T item in source) {
+            action(item, i);
+            i++;
+            yield return item;
+        }
+    }
+
     public static IEnumerable<T> TryPeek<T>(this IEnumerable<T> source, Action<T> action, Action<T, Exception> ex, bool discardExceptionElements = true) {
         if (source == null) {
             throw new ArgumentNullException(nameof(source));

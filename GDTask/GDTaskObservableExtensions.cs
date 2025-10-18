@@ -325,7 +325,9 @@ namespace Fractural.Tasks.Internal
                     old = current;
                     if (!alreadyDisposed)
                     {
-                        if (value == null) return;
+                        if (value == null) {
+                            return;
+                        }
                         current = value;
                     }
                 }
@@ -336,7 +338,9 @@ namespace Fractural.Tasks.Internal
                     return;
                 }
 
-                if (old != null) throw new InvalidOperationException("Disposable is already set");
+                if (old != null) {
+                    throw new InvalidOperationException("Disposable is already set");
+                }
             }
         }
 
@@ -355,7 +359,9 @@ namespace Fractural.Tasks.Internal
                 }
             }
 
-            if (old != null) old.Dispose();
+            if (old != null) {
+                old.Dispose();
+            }
         }
     }
 
@@ -375,8 +381,12 @@ namespace Fractural.Tasks.Internal
             get
             {
                 ThrowIfDisposed();
-                if (!isStopped) throw new InvalidOperationException("AsyncSubject is not completed yet");
-                if (lastError != null) ExceptionDispatchInfo.Capture(lastError).Throw();
+                if (!isStopped) {
+                    throw new InvalidOperationException("AsyncSubject is not completed yet");
+                }
+                if (lastError != null) {
+                    ExceptionDispatchInfo.Capture(lastError).Throw();
+                }
                 return lastValue;
             }
         }
@@ -399,7 +409,9 @@ namespace Fractural.Tasks.Internal
             lock (observerLock)
             {
                 ThrowIfDisposed();
-                if (isStopped) return;
+                if (isStopped) {
+                    return;
+                }
 
                 old = outObserver;
                 outObserver = EmptyObserver<T>.Instance;
@@ -421,13 +433,17 @@ namespace Fractural.Tasks.Internal
 
         public void OnError(Exception error)
         {
-            if (error == null) throw new ArgumentNullException("error");
+            if (error == null) {
+                throw new ArgumentNullException("error");
+            }
 
             IObserver<T> old;
             lock (observerLock)
             {
                 ThrowIfDisposed();
-                if (isStopped) return;
+                if (isStopped) {
+                    return;
+                }
 
                 old = outObserver;
                 outObserver = EmptyObserver<T>.Instance;
@@ -443,7 +459,9 @@ namespace Fractural.Tasks.Internal
             lock (observerLock)
             {
                 ThrowIfDisposed();
-                if (isStopped) return;
+                if (isStopped) {
+                    return;
+                }
 
                 this.hasValue = true;
                 this.lastValue = value;
@@ -452,7 +470,9 @@ namespace Fractural.Tasks.Internal
 
         public IDisposable Subscribe(IObserver<T> observer)
         {
-            if (observer == null) throw new ArgumentNullException("observer");
+            if (observer == null) {
+                throw new ArgumentNullException("observer");
+            }
 
             Exception ex = default(Exception);
             T v = default(T);
@@ -519,7 +539,9 @@ namespace Fractural.Tasks.Internal
 
         void ThrowIfDisposed()
         {
-            if (isDisposed) throw new ObjectDisposedException("");
+            if (isDisposed) {
+                throw new ObjectDisposedException("");
+            }
         }
 
         class Subscription : IDisposable
@@ -605,8 +627,9 @@ namespace Fractural.Tasks.Internal
         internal IObserver<T> Remove(IObserver<T> observer)
         {
             var i = Array.IndexOf(_observers.Data, observer);
-            if (i < 0)
+            if (i < 0) {
                 return this;
+            }
 
             if (_observers.Data.Length == 2)
             {
@@ -721,10 +744,14 @@ namespace Fractural.Tasks.Internal
         public ImmutableList<T> Remove(T value)
         {
             var i = IndexOf(value);
-            if (i < 0) return this;
+            if (i < 0) {
+                return this;
+            }
 
             var length = data.Length;
-            if (length == 1) return Empty;
+            if (length == 1) {
+                return Empty;
+            }
 
             T[] newData = new T[length - 1];
 
@@ -739,7 +766,9 @@ namespace Fractural.Tasks.Internal
             for (var i = 0; i < data.Length; ++i)
             {
                 // ImmutableList only use for IObserver(no worry for boxed)
-                if (object.Equals(data[i], value)) return i;
+                if (object.Equals(data[i], value)) {
+                    return i;
+                }
             }
             return -1;
         }

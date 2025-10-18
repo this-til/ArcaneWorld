@@ -76,8 +76,10 @@ public class ResourceLocation : IComparable<ResourceLocation> {
     }
 
     public int CompareTo(ResourceLocation? other) {
-        if (other == null) return 1;
-            
+        if (other == null) {
+            return 1;
+        }
+
         int domainComparison = string.Compare(domain, other.domain, StringComparison.Ordinal);
         if (domainComparison != 0) {
             return domainComparison;

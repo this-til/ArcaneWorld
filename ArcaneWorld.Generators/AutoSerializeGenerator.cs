@@ -132,12 +132,14 @@ public class AutoSerializeGenerator : IIncrementalGenerator {
     }
 
     private static void Execute(Compilation compilation, ImmutableArray<ClassInfo?> classes, SourceProductionContext context) {
-        if (classes.IsDefaultOrEmpty)
+        if (classes.IsDefaultOrEmpty) {
             return;
+        }
 
         foreach (var classInfo in classes) {
-            if (classInfo == null)
+            if (classInfo == null) {
                 continue;
+            }
 
             var compilationUnit = GenerateCompilationUnit(classInfo);
             var sourceText = SourceText.From(compilationUnit.NormalizeWhitespace().ToFullString(), Encoding.UTF8);

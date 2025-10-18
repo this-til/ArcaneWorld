@@ -44,7 +44,9 @@ namespace Fractural.Tasks
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             get
             {
-                if (source == null) return GDTaskStatus.Succeeded;
+                if (source == null) {
+                    return GDTaskStatus.Succeeded;
+                }
                 return source.GetStatus(token);
             }
         }
@@ -62,13 +64,19 @@ namespace Fractural.Tasks
         public GDTask<bool> SuppressCancellationThrow()
         {
             GDTaskStatus status = Status;
-            if (status == GDTaskStatus.Succeeded) return CompletedTasks.False;
-            if (status == GDTaskStatus.Canceled) return CompletedTasks.True;
+            if (status == GDTaskStatus.Succeeded) {
+                return CompletedTasks.False;
+            }
+            if (status == GDTaskStatus.Canceled) {
+                return CompletedTasks.True;
+            }
             return new GDTask<bool>(new IsCanceledSource(source), token);
         }
         public override string ToString()
         {
-            if (source == null) return "()";
+            if (source == null) {
+                return "()";
+            }
             return "(" + source.UnsafeGetStatus() + ")";
         }
 
@@ -89,7 +97,9 @@ namespace Fractural.Tasks
 
         public GDTask<AsyncUnit> AsAsyncUnitGDTask()
         {
-            if (this.source == null) return CompletedTasks.AsyncUnit;
+            if (this.source == null) {
+                return CompletedTasks.AsyncUnit;
+            }
 
             GDTaskStatus status = this.source.GetStatus(this.token);
             if (status.IsCompletedSuccessfully())
@@ -287,7 +297,9 @@ namespace Fractural.Tasks
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             public void GetResult()
             {
-                if (task.source == null) return;
+                if (task.source == null) {
+                    return;
+                }
                 task.source.GetResult(task.token);
             }
 
@@ -402,7 +414,9 @@ namespace Fractural.Tasks
 
         public GDTask AsGDTask()
         {
-            if (this.source == null) return GDTask.CompletedTask;
+            if (this.source == null) {
+                return GDTask.CompletedTask;
+            }
 
             GDTaskStatus status = this.source.GetStatus(this.token);
             if (status.IsCompletedSuccessfully())

@@ -55,7 +55,9 @@ public class LogFieldGenerator : IIncrementalGenerator {
         bool hasLogAttribute = typeSymbol.GetAttributes()
             .Any(attr => {
                 var attrClass = attr.AttributeClass;
-                if (attrClass == null) return false;
+                if (attrClass == null) {
+                    return false;
+                }
                 return attrClass.ToDisplayString() == LogAttributeName ||
                        attrClass.Name == "LogAttribute" ||
                        attrClass.Name == "Log";

@@ -47,7 +47,9 @@ namespace Fractural.Tasks.Internal
 		[RequiresUnreferencedCode("Calls System.Diagnostics.StackFrame.GetMethod()")]
 		public static string CleanupAsyncStackTrace(this StackTrace stackTrace)
         {
-            if (stackTrace == null) return "";
+            if (stackTrace == null) {
+                return "";
+            }
 
             StringBuilder sb = new StringBuilder();
             for (int i = 0; i < stackTrace.FrameCount; i++)
@@ -56,7 +58,9 @@ namespace Fractural.Tasks.Internal
 
                 MethodBase mb = sf.GetMethod();
 
-                if (IgnoreLine(mb)) continue;
+                if (IgnoreLine(mb)) {
+                    continue;
+                }
                 if (IsAsync(mb))
                 {
                     sb.Append("async ");
@@ -176,13 +180,19 @@ namespace Fractural.Tasks.Internal
             {
                 return builtin;
             }
-            if (t.IsGenericParameter) return t.Name;
-            if (t.IsArray) return BeautifyType(t.GetElementType(), shortName) + "[]";
+            if (t.IsGenericParameter) {
+                return t.Name;
+            }
+            if (t.IsArray) {
+                return BeautifyType(t.GetElementType(), shortName) + "[]";
+            }
             if (t.FullName?.StartsWith("System.ValueTuple") ?? false)
             {
                 return "(" + string.Join(", ", t.GetGenericArguments().Select(x => BeautifyType(x, true))) + ")";
             }
-            if (!t.IsGenericType) return shortName ? t.Name : t.FullName.Replace("GDTask.Triggers.", "").Replace("GDTask.Internal.", "").Replace("GDTask.", "") ?? t.Name;
+            if (!t.IsGenericType) {
+                return shortName ? t.Name : t.FullName.Replace("GDTask.Triggers.", "").Replace("GDTask.Internal.", "").Replace("GDTask.", "") ?? t.Name;
+            }
 
             var innerFormat = string.Join(", ", t.GetGenericArguments().Select(x => BeautifyType(x, true)));
 

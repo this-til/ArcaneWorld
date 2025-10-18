@@ -323,7 +323,9 @@ namespace Fractural.Tasks
             {
                 get
                 {
-                    if (!dontPostWhenSameContext) return false;
+                    if (!dontPostWhenSameContext) {
+                        return false;
+                    }
 
                     SynchronizationContext current = SynchronizationContext.Current;
                     if (current == synchronizationContext)

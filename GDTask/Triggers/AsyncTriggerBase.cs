@@ -18,13 +18,16 @@ namespace Fractural.Tasks.Triggers
 
         public override void _Notification(int what)
         {
-            if (what == NotificationPredelete)
+            if (what == NotificationPredelete) {
                 OnDestroy();
+            }
         }
 
         void OnDestroy()
         {
-            if (calledDestroy) return;
+            if (calledDestroy) {
+                return;
+            }
             calledDestroy = true;
 
             triggerEvent.SetCompleted();

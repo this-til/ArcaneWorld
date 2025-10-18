@@ -58,7 +58,9 @@ namespace Fractural.Tasks
         /// </summary>
         public void Restart()
         {
-            if (isDisposed) throw new ObjectDisposedException(null);
+            if (isDisposed) {
+                throw new ObjectDisposedException(null);
+            }
 
             ResetCore(null); // init state
             if (!isRunning)
@@ -74,7 +76,9 @@ namespace Fractural.Tasks
         /// </summary>
         public void Restart(TimeSpan interval)
         {
-            if (isDisposed) throw new ObjectDisposedException(null);
+            if (isDisposed) {
+                throw new ObjectDisposedException(null);
+            }
 
             ResetCore(interval); // init state
             if (!isRunning)
@@ -176,8 +180,9 @@ namespace Fractural.Tasks
         {
             this.elapsed = 0.0;
             this.isMainThread = GDTaskPlayerLoopAutoload.IsMainThread;
-            if (this.isMainThread)
+            if (this.isMainThread) {
                 this.initialFrame = Engine.GetProcessFrames();
+            }
             if (interval != null)
             {
                 this.interval = (float)interval.Value.TotalSeconds;
