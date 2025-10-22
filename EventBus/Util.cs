@@ -12,37 +12,6 @@ public interface IPriority {
 
 }
 
-public static class EventTypeTool {
-
-    public static readonly Dictionary<Type, IReadOnlyList<Type>> types = new Dictionary<Type, IReadOnlyList<Type>>();
-
-    private static readonly IReadOnlyList<Type> emptyList = new List<Type>();
-
-    public static IReadOnlyList<Type> getParents(this Type? type) {
-
-        if (type is null) {
-            return emptyList;
-        }
-
-        if (types.TryGetValue(type, out IReadOnlyList<Type>? list)) {
-            return list;
-        }
-
-        Type? baseType = type;
-        List<Type> _list = new List<Type>();
-
-        while (baseType is not null && baseType != typeof(object)) {
-            _list.Add(baseType);
-            baseType = baseType.BaseType;
-        }
-
-        list = new ReadOnlyCollection<Type>(_list);
-        types.Add(type, list);
-        return list;
-
-    }
-
-}
 
 public static class ListExtend {
 

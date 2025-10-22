@@ -14,6 +14,7 @@
         <ProjectReference Include="../RegisterSystem/RegisterSystem.csproj"/>
         <ProjectReference Include="../RegisterSystem.Generators/RegisterSystem.Generators.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false"/>
         <ProjectReference Include="../ArcaneWorld.Generators/ArcaneWorld.Generators.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false"/>
+        <ProjectReference Include="../CakeToolset.Generators/CakeToolset.Generators.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false"/>
         <ProjectReference Include="../GDTask/GDTask.csproj"/>  
         <ProjectReference Include="../CakeToolset/CakeToolset.csproj"/>
     </ItemGroup>

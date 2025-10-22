@@ -7,6 +7,8 @@ namespace CommonUtil.Extensions;
 
 public static class LinqExtensions {
 
+    private static Random sharedRandom = new Random();
+
     public static IEnumerable<T> Peek<T>(this IEnumerable<T> source, Action<T> action) {
         if (source == null) {
             throw new ArgumentNullException(nameof(source));
@@ -365,5 +367,144 @@ public static class LinqExtensions {
 
         return list;
     }
+
+    /// <summary>
+    /// 随机抽样指定数量的元素
+    /// </summary>
+    /// <typeparam name="T">元素类型</typeparam>
+    /// <param name="source">源序列</param>
+    /// <param name="count">抽样数量</param>
+    /// <param name="random">随机数生成器，如果为null则使用默认的Random实例</param>
+    /// <returns>随机抽样的元素序列</returns>
+    public static IEnumerable<T> Sample<T>(this IEnumerable<T> source, int count, Random? random = null) {
+        if (source == null) {
+            throw new ArgumentNullException(nameof(source));
+        }
+        if (count < 0) {
+            throw new ArgumentOutOfRangeException(nameof(count), "Count must be non-negative.");
+        }
+
+        if (count == 0) {
+            yield break;
+        }
+
+        random ??= sharedRandom;
+        List<T> list = source.ToList();
+        
+        if (count >= list.Count) {
+            foreach (T item in list) {
+                yield return item;
+            }
+            yield break;
+        }
+
+        HashSet<int> selectedIndexes = new HashSet<int>();
+        while (selectedIndexes.Count < count) {
+            int index = random.Next(list.Count);
+            if (selectedIndexes.Add(index)) {
+                yield return list[index];
+            }
+        }
+    }
+
+    /// <summary>
+    /// 按比例随机抽样
+    /// </summary>
+    /// <typeparam name="T">元素类型</typeparam>
+    /// <param name="source">源序列</param>
+    /// <param name="ratio">抽样比例，范围为0.0到1.0</param>
+    /// <param name="random">随机数生成器，如果为null则使用默认的Random实例</param>
+    /// <returns>按比例抽样的元素序列</returns>
+    public static IEnumerable<T> SampleByRatio<T>(this IEnumerable<T> source, double ratio, Random? random = null) {
+        if (source == null) {
+            throw new ArgumentNullException(nameof(source));
+        }
+        if (ratio < 0.0 || ratio > 1.0) {
+            throw new ArgumentOutOfRangeException(nameof(ratio), "Ratio must be between 0.0 and 1.0.");
+        }
+
+        if (ratio == 0.0) {
+            yield break;
+        }
+
+        random ??= sharedRandom;
+        
+        foreach (T item in source) {
+            if (random.NextDouble() < ratio) {
+                yield return item;
+            }
+        }
+    }
+
+    /// <summary>
+    /// 等间隔抽样，每隔指定间隔取一个元素
+    /// </summary>
+    /// <typeparam name="T">元素类型</typeparam>
+    /// <param name="source">源序列</param>
+    /// <param name="interval">抽样间隔</param>
+    /// <param name="startIndex">起始索引，默认为0</param>
+    /// <returns>等间隔抽样的元素序列</returns>
+    public static IEnumerable<T> SampleEvery<T>(this IEnumerable<T> source, int interval, int startIndex = 0) {
+        if (source == null) {
+            throw new ArgumentNullException(nameof(source));
+        }
+        if (interval <= 0) {
+            throw new ArgumentOutOfRangeException(nameof(interval), "Interval must be positive.");
+        }
+        if (startIndex < 0) {
+            throw new ArgumentOutOfRangeException(nameof(startIndex), "Start index must be non-negative.");
+        }
+
+        int currentIndex = 0;
+        foreach (T item in source) {
+            if (currentIndex >= startIndex && (currentIndex - startIndex) % interval == 0) {
+                yield return item;
+            }
+            currentIndex++;
+        }
+    }
+
+    /// <summary>
+    /// 蓄水池抽样算法，适用于大型或未知大小的数据流
+    /// </summary>
+    /// <typeparam name="T">元素类型</typeparam>
+    /// <param name="source">源序列</param>
+    /// <param name="sampleSize">抽样大小</param>
+    /// <param name="random">随机数生成器，如果为null则使用默认的Random实例</param>
+    /// <returns>蓄水池抽样的元素序列</returns>
+    public static IEnumerable<T> ReservoirSample<T>(this IEnumerable<T> source, int sampleSize, Random? random = null) {
+        if (source == null) {
+            throw new ArgumentNullException(nameof(source));
+        }
+        if (sampleSize < 0) {
+            throw new ArgumentOutOfRangeException(nameof(sampleSize), "Sample size must be non-negative.");
+        }
+
+        if (sampleSize == 0) {
+            yield break;
+        }
+
+        random ??= sharedRandom;
+        List<T> reservoir = new List<T>(sampleSize);
+        int count = 0;
+
+        foreach (T item in source) {
+            count++;
+            if (reservoir.Count < sampleSize) {
+                reservoir.Add(item);
+            }
+            else {
+                int j = random.Next(count);
+                if (j < sampleSize) {
+                    reservoir[j] = item;
+                }
+            }
+        }
+
+        foreach (T item in reservoir) {
+            yield return item;
+        }
+    }
+    
 
 }

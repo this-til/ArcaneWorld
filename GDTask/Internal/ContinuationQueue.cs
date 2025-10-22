@@ -4,7 +4,7 @@ using System.Threading;
 
 namespace Fractural.Tasks.Internal
 {
-    internal sealed class ContinuationQueue
+    public sealed class ContinuationQueue
     {
         const int MaxArrayLength = 0X7FEFFFFF;
         const int InitialSize = 16;

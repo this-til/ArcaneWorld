@@ -21,8 +21,8 @@ internal class Log : ILog {
         }
 
         var dateTime = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fff");
-        var thread = Environment.CurrentManagedThreadId;
-        var levelStr = logLevel.ToString().ToUpper().PadRight(5);
+        var thread = Environment.CurrentManagedThreadId.ToString().PadLeft(2);
+        var levelStr = logLevel.ToString().ToUpper().PadLeft(5);
         var logger = name;
         var msg = message?.ToString() ?? "null";
 

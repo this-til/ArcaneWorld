@@ -16,7 +16,7 @@ public partial class LongitudeLatitude : Node3D {
     public Callable redraw => Callable.From(draw);
 
     [Export]
-    public float radius { get; set; } = 110;
+    public double radius { get; set; } = 110;
 
     [Export]
     public ShaderMaterial lineMaterial { get; set; } = new ShaderMaterial() { Shader = GD.Load<Shader>(R.Shaders.Planet.LongitudeLatitude.LineAlpha_gdshader) };
@@ -85,7 +85,6 @@ public partial class LongitudeLatitude : Node3D {
         AddChild(meshIns);
         draw();
     }
-    
 
     public void draw() {
         SurfaceTool surfaceTool = new SurfaceTool();
@@ -216,10 +215,10 @@ public partial class LongitudeLatitude : Node3D {
                 surfaceTool.SetColor(color);
                 // 【切记】：Mesh.PrimitiveType.Lines 绘制方式时，必须自己指定法线！！！否则没颜色
                 surfaceTool.SetNormal(origin + preDirection);
-                surfaceTool.AddVertex((origin + preDirection) * radius);
+                surfaceTool.AddVertex((origin + preDirection) * (float)radius);
                 surfaceTool.SetColor(color);
                 surfaceTool.SetNormal(origin + currentDirection);
-                surfaceTool.AddVertex((origin + currentDirection) * radius);
+                surfaceTool.AddVertex((origin + currentDirection) * (float)radius);
             }
 
             preDirection = currentDirection;

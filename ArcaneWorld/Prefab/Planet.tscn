@@ -6,7 +6,11 @@
 [ext_resource type="Script" uid="uid://80gta14xqu1s" path="res://addons/zylann.atmosphere/planet_atmosphere.gd" id="4_uyuuk"]
 [ext_resource type="Shader" uid="uid://bixaf68e35s0f" path="res://addons/zylann.atmosphere/shaders/planet_atmosphere_clouds.gdshader" id="5_1oaqd"]
 [ext_resource type="Script" uid="uid://bmjowuxck5v32" path="res://addons/zylann.atmosphere/noise_cubemap.gd" id="6_rxshr"]
-[ext_resource type="Script" uid="uid://voxnbptif4nk" path="res://addons/SIsilicon.vfx.lens flare/lens-flare.gd" id="7_e5jy1"]
+
+[sub_resource type="FastNoiseLite" id="FastNoiseLite_1oaqd"]
+seed = 645123
+frequency = 1.0
+fractal_type = 0
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_bo13y"]
 render_priority = 0
@@ -47,17 +51,24 @@ metadata/_custom_type_script = "uid://bmjowuxck5v32"
 
 [node name="Planet" type="Node3D"]
 script = ExtResource("1_5js8h")
+tileDivisions = 120
+chunkDivisions = 12
+radius = 151.38795
+atmosphereHeight = 30.277592
+seed = 765182564
+basicNoise = SubResource("FastNoiseLite_1oaqd")
+noiseStrength = 12.0
 
 [node name="LongitudeLatitude" type="Node3D" parent="."]
 script = ExtResource("2_xva0s")
-radius = 120.0
+radius = 181.66554565429686
 lineMaterial = SubResource("ShaderMaterial_bo13y")
 visibility = 1.0
 
 [node name="PlanetAtmosphere" type="Node3D" parent="."]
 script = ExtResource("4_uyuuk")
-planet_radius = 100.0
-atmosphere_height = 25.0
+planet_radius = 151.38795
+atmosphere_height = 30.277592
 custom_shader = ExtResource("5_1oaqd")
 shader_params/u_density = 0.1
 shader_params/u_scattering_strength = 15.0
@@ -76,9 +87,7 @@ shader_params/u_cloud_shape_scale = 1.0
 shader_params/u_cloud_coverage_cubemap = SubResource("Cubemap_gk7ee")
 shader_params/u_sphere_depth_factor = 0.0
 
-[node name="LensFlare" type="Node" parent="."]
-script = ExtResource("7_e5jy1")
-metadata/_custom_type_script = "uid://voxnbptif4nk"
-
 [node name="Camera3D" type="Camera3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 171.51512)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 317.87506)
+
+[node name="Surface" type="Node3D" parent="."]

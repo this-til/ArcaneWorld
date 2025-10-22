@@ -2,31 +2,69 @@
 using Godot;
 using System;
 
-namespace Fractural.Tasks
-{
-    public static class GDTaskLoopRunners
-    {
-        public struct GDTaskLoopRunnerProcess { };
-        public struct GDTaskLoopRunnerPhysicsProcess { };
+namespace Fractural.Tasks {
+
+    public static class GDTaskLoopRunners {
+
+        public struct GDTaskLoopRunnerProcess {
+
+        };
+
+        public struct GDTaskLoopRunnerPhysicsProcess {
+
+        };
+
     }
 
-    public enum PlayerLoopTiming
-    {
-        Process = 0,
-        PhysicsProcess = 1,
-        PauseProcess = 2,
-        PausePhysicsProcess = 3,
+    public enum PlayerLoopTiming {
+
+        Process = 0, PhysicsProcess = 1, PauseProcess = 2, PausePhysicsProcess = 3,
+
     }
 
-    public interface IPlayerLoopItem
-    {
+    public interface IPlayerLoopItem {
+
         bool MoveNext();
+
     }
 
     /// <summary>
     /// Singleton that forwards Godot calls and values to GDTasks.
+    ///
+    /// 我将他改成接口，一遍在项目中作为自动加载项目
     /// </summary>
-    public partial class GDTaskPlayerLoopAutoload : Node
+    ///
+    public interface GDTaskPlayerLoopAutoload {
+
+        public static int MainThreadId => Global.mainThreadId;
+
+        public static bool IsMainThread => System.Threading.Thread.CurrentThread.ManagedThreadId == Global.mainThreadId;
+
+        public static void AddAction(PlayerLoopTiming timing, IPlayerLoopItem action) => Global.LocalAddAction(timing, action);
+        public static void ThrowInvalidLoopTiming(PlayerLoopTiming playerLoopTiming) => throw new InvalidOperationException("Target playerLoopTiming is not injected. Please check PlayerLoopHelper.Initialize. PlayerLoopTiming:" + playerLoopTiming);
+        public static void AddContinuation(PlayerLoopTiming timing, Action continuation) => Global.LocalAddContinuation(timing, continuation);
+
+        void LocalAddAction(PlayerLoopTiming timing, IPlayerLoopItem action);
+
+        void LocalAddContinuation(PlayerLoopTiming timing, Action continuation);
+
+        int mainThreadId { get; }
+
+        public double DeltaTime { get; }
+
+        public double PhysicsDeltaTime { get; }
+
+        public static GDTaskPlayerLoopAutoload Global => GDTaskPlayerLoopAutoloadHold.Global;
+
+    }
+
+    public class GDTaskPlayerLoopAutoloadHold {
+
+        public static GDTaskPlayerLoopAutoload Global;
+
+    }
+
+    /*public partial class GDTaskPlayerLoopAutoload : Node
     {
         public static int MainThreadId => Global.mainThreadId;
         public static bool IsMainThread => System.Threading.Thread.CurrentThread.ManagedThreadId == Global.mainThreadId;
@@ -157,6 +195,6 @@ namespace Fractural.Tasks
             yielders[(int)PlayerLoopTiming.PausePhysicsProcess].Run();
             runners[(int)PlayerLoopTiming.PausePhysicsProcess].Run();
         }
-    }
-}
+    }*/
 
+}

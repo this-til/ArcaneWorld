@@ -13,6 +13,8 @@ public static class R {
 
         public static class ArcaneWorldGenerator {
             public const string ArcaneWorldGenerator_cs = "res://addons/ArcaneWorldGenerator/ArcaneWorldGenerator.cs";
+            public const string GenerateResourceTree_cs = "res://addons/ArcaneWorldGenerator/GenerateResourceTree.cs";
+            public const string GenerateShaderOperationPacks_cs = "res://addons/ArcaneWorldGenerator/GenerateShaderOperationPacks.cs";
             public const string plugin_cfg = "res://addons/ArcaneWorldGenerator/plugin.cfg";
         }
 
@@ -100,8 +102,46 @@ public static class R {
             }
         }
 
+        public static class Constants {
+            public const string IcosahedronConstants_cs = "res://Script/Constants/IcosahedronConstants.cs";
+        }
+
         public static class Generated {
             public const string R_g_cs = "res://Script/Generated/R.g.cs";
+
+            public static class ShaderWrappers {
+
+                public static class Addons {
+
+                    public static class SIsilicon_vfx_lens_flare {
+                        public const string LensFlareShader_g_cs = "res://Script/Generated/ShaderWrappers/addons/SIsilicon.vfx.lens flare/LensFlareShader.g.cs";
+                    }
+
+                    public static class Zylann_atmosphere {
+
+                        public static class Shaders {
+                            public const string OpticalDepthShader_g_cs = "res://Script/Generated/ShaderWrappers/addons/zylann.atmosphere/shaders/OpticalDepthShader.g.cs";
+                            public const string PlanetAtmosphereCloudsHighRmShader_g_cs = "res://Script/Generated/ShaderWrappers/addons/zylann.atmosphere/shaders/PlanetAtmosphereCloudsHighRmShader.g.cs";
+                            public const string PlanetAtmosphereCloudsHighShader_g_cs = "res://Script/Generated/ShaderWrappers/addons/zylann.atmosphere/shaders/PlanetAtmosphereCloudsHighShader.g.cs";
+                            public const string PlanetAtmosphereCloudsShader_g_cs = "res://Script/Generated/ShaderWrappers/addons/zylann.atmosphere/shaders/PlanetAtmosphereCloudsShader.g.cs";
+                            public const string PlanetAtmosphereNoCloudsShader_g_cs = "res://Script/Generated/ShaderWrappers/addons/zylann.atmosphere/shaders/PlanetAtmosphereNoCloudsShader.g.cs";
+                            public const string PlanetAtmosphereV1CloudsHighShader_g_cs = "res://Script/Generated/ShaderWrappers/addons/zylann.atmosphere/shaders/PlanetAtmosphereV1CloudsHighShader.g.cs";
+                            public const string PlanetAtmosphereV1CloudsShader_g_cs = "res://Script/Generated/ShaderWrappers/addons/zylann.atmosphere/shaders/PlanetAtmosphereV1CloudsShader.g.cs";
+                            public const string PlanetAtmosphereV1NoCloudsShader_g_cs = "res://Script/Generated/ShaderWrappers/addons/zylann.atmosphere/shaders/PlanetAtmosphereV1NoCloudsShader.g.cs";
+                        }
+                    }
+                }
+
+                public static class Shaders {
+
+                    public static class Planet {
+
+                        public static class LongitudeLatitude {
+                            public const string LineAlphaShader_g_cs = "res://Script/Generated/ShaderWrappers/Shaders/Planet/LongitudeLatitude/LineAlphaShader.g.cs";
+                        }
+                    }
+                }
+            }
         }
 
         public static class Global {
@@ -114,8 +154,17 @@ public static class R {
         }
 
         public static class Planet {
+            public const string AxialCoords_cs = "res://Script/Planet/AxialCoords.cs";
+            public const string Chunk_cs = "res://Script/Planet/Chunk.cs";
+            public const string Face_cs = "res://Script/Planet/Face.cs";
             public const string LongitudeLatitude_cs = "res://Script/Planet/LongitudeLatitude.cs";
+            public const string LongitudeLatitudeCoords_cs = "res://Script/Planet/LongitudeLatitudeCoords.cs";
+            public const string PlanerDomain_cs = "res://Script/Planet/PlanerDomain.cs";
             public const string Planet_cs = "res://Script/Planet/Planet.cs";
+            public const string Point_cs = "res://Script/Planet/Point.cs";
+            public const string PointyTopDirection_cs = "res://Script/Planet/PointyTopDirection.cs";
+            public const string SphereAxialCoords_cs = "res://Script/Planet/SphereAxialCoords.cs";
+            public const string Tile_cs = "res://Script/Planet/Tile.cs";
         }
 
         public static class Register {
@@ -131,6 +180,7 @@ public static class R {
         }
 
         public static class Util {
+            public const string Math3dUtil_cs = "res://Script/Util/Math3dUtil.cs";
             public const string ReadLockContext_cs = "res://Script/Util/ReadLockContext.cs";
             public const string SimpleNode_cs = "res://Script/Util/SimpleNode.cs";
             public const string WriteLockContext_cs = "res://Script/Util/WriteLockContext.cs";

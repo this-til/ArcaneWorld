@@ -3,10 +3,10 @@ using CakeToolset.Log;
 using CommonUtil.Extensions;
 using Godot;
 
-
 namespace CakeToolset.Global.Component;
+
 [Tool]
-public partial class RegisterSystemHold : Node , IGlobalComponent{
+public partial class RegisterSystemHold : Node, IGlobalComponent {
 
     public static RegisterSystem.RegisterSystem registerSystem { get; private set; } = null!;
 
@@ -25,4 +25,5 @@ public partial class RegisterSystemHold : Node , IGlobalComponent{
     }
 
     public int priority => 1 << 24;
+
 }

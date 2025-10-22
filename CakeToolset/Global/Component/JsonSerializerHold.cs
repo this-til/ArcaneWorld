@@ -1,4 +1,5 @@
-﻿using System.Text.Json;
+﻿using System.Reflection;
+using System.Text.Json;
 using System.Text.Json.Serialization;
 using CakeToolset.Attribute;
 using CommonUtil.Extensions;
@@ -11,7 +12,6 @@ namespace CakeToolset.Global.Component;
 public partial class JsonSerializerHold : Node, IGlobalComponent {
 
     public static JsonSerializerOptions jsonSerializerOptions { get; private set; } = null!;
-    
 
     public void initialize() {
 
@@ -31,7 +31,13 @@ public partial class JsonSerializerHold : Node, IGlobalComponent {
 
     public void terminate() {
         jsonSerializerOptions = null!;
+
+        Assembly assembly = typeof(JsonSerializerOptions).Assembly;
+        Type? updateHandlerType = assembly.GetType("System.Text.Json.JsonSerializerOptionsUpdateHandler");
+        MethodInfo? clearCacheMethod = updateHandlerType?.GetMethod("ClearCache", BindingFlags.Static | BindingFlags.Public);
+        clearCacheMethod?.Invoke(null, [null]);
     }
+
     public int priority => 1 << 23;
 
 }

@@ -5,7 +5,7 @@ using Xunit;
 
 namespace CommonUtil.Tests.Extensions;
 
-public class DictionaryExtendMethodTests
+public class DictionaryExtensionsTests
 {
     [Fact]
     public void IsEmpty_WithEmptyDictionary_ShouldReturnTrue()

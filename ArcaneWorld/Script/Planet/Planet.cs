@@ -1,6 +1,8 @@
 ﻿using System.Collections.Concurrent;
+using System.Diagnostics;
 using System.IO.Compression;
 using System.Threading.Tasks;
+using ArcaneWorld.Generated;
 using ArcaneWorld.Script.Constants;
 using ArcaneWorld.Util;
 using CakeToolset.Attribute;
@@ -9,6 +11,7 @@ using CommonUtil.Container;
 using CommonUtil.Extensions;
 using Fractural.Tasks;
 using Godot;
+using Godot.Collections;
 using Environment = System.Environment;
 
 namespace ArcaneWorld.Planet;
@@ -16,13 +19,68 @@ namespace ArcaneWorld.Planet;
 [Tool]
 [Log]
 [ClassName]
-public partial class Planet : Node3D {
+[SceneTree("../../Prefab/Planet.tscn")]
+public partial class Planet : Node3D, ISerializationListener {
+
+    [ExportToolButton("重新生成星球", Icon = "WorldEnvironment")]
+    public Callable regenerate => Callable.From(regeneratePlanet);
+
+    private void regeneratePlanet() {
+        Task __ = generatedPlane();
+    }
 
     [Export]
     public int tileDivisions { get; set; } = 50;
 
     [Export]
-    public int chunkDivisions { get; set; } = 5;
+    [ReadOnlyProperty]
+    public int chunkDivisions {
+        get => tileDivisions / 10;
+        // ReSharper disable once ValueParameterNotUsed
+        set { }
+    }
+
+    /// <summary>
+    /// 半径根据 tileDivisions 自动计算
+    /// 设定：单位面积（每个三角形面）= 1
+    /// 球体表面积 = 4πr²
+    /// 二十面体细分后总面数 = 20 × tileDivisions²
+    /// 因此：r = tileDivisions × sqrt(5/π)
+    /// </summary>
+    [Export]
+    [ReadOnlyProperty]
+    public float radius {
+        get => tileDivisions * Mathf.Sqrt(5.0f / Mathf.Pi);
+        // ReSharper disable once ValueParameterNotUsed
+        set { }
+    }
+
+    /// <summary>
+    /// 大气高度
+    /// </summary>
+    [Export]
+    [ReadOnlyProperty]
+    public float atmosphereHeight {
+        get => radius * 0.2f;
+        // ReSharper disable once ValueParameterNotUsed
+        set { }
+    }
+
+    [ExportGroup("种子")]
+    [Export]
+    public ulong seed { get; set; }
+
+    [ExportToolButton("随机种子")]
+    public Callable randomSeed => Callable.From(_randomSeed);
+
+    private void _randomSeed() => seed = (ulong)Random.Shared.Next();
+
+    [ExportGroup("地形噪声")]
+    [Export]
+    public Noise? basicNoise { get; set; }
+
+    [Export]
+    public float noiseStrength { get; set; } = 15;
 
     public IReadOnlyList<Point> tilePointList = null!;
 
@@ -58,16 +116,16 @@ public partial class Planet : Node3D {
 
     public Point? getPointByCoords(PlanerDomain domain, SphereAxialCoords coords) {
         return domain switch {
-            PlanerDomain.Tile => tileCoordsMap[coords],
-            PlanerDomain.Chunk => chunkCoordsMap[coords],
+            PlanerDomain.tile => tileCoordsMap[coords],
+            PlanerDomain.chunk => chunkCoordsMap[coords],
             _ => throw new ArgumentOutOfRangeException(nameof(domain), domain, null)
         };
     }
 
     public Point? getPointByPosition(PlanerDomain domain, Vector3 position) {
         return domain switch {
-            PlanerDomain.Tile => tilePositionMap[position],
-            PlanerDomain.Chunk => chunkPositionMap[position],
+            PlanerDomain.tile => tilePositionMap[position],
+            PlanerDomain.chunk => chunkPositionMap[position],
             _ => throw new ArgumentOutOfRangeException(nameof(domain), domain, null)
         };
     }
@@ -78,32 +136,49 @@ public partial class Planet : Node3D {
     /// <param name="pos"></param>
     /// <returns></returns>
     public Chunk? searchNearestChunk(Vector3 pos) {
-        chunkPointVpTree.Search(pos.Normalized(), 1, out Vector3[] results, out _);
+        chunkPointVpTree.Search(pos.Normalized(), 1, out Vector3[] results, out double[] __);
         return posChunkMap.GetValueOrDefault(results[0]);
     }
 
     public Tile? searchNearestTile(Vector3 pos) {
-        tilePointVpTree.Search(pos.Normalized(), 1, out Vector3[] results, out _);
+        tilePointVpTree.Search(pos.Normalized(), 1, out Vector3[] results, out double[] __);
         return posTileMap.GetValueOrDefault(results[0]);
     }
+    
 
     public override void _Ready() {
         base._Ready();
-        _ = generatedPlane();
+
+        Task __ = generatedPlane();
     }
 
     private async Task generatedPlane() {
-        (chunkPointList, chunkFaceList) = await generatedPointsAndFaces(PlanerDomain.Chunk, chunkDivisions);
-        (tilePointList, tileFaceList) = await generatedPointsAndFaces(PlanerDomain.Tile, tileDivisions);
+        // 在主线程设置 Godot 节点属性
+        _.LongitudeLatitude.radius = radius * 1.2;
+        _.LongitudeLatitude.draw();
+
+        _.PlanetAtmosphere.Set("planet_radius", radius);
+        _.PlanetAtmosphere.Set("atmosphere_height", atmosphereHeight);
+
+        clear();
+
+        // 切换到线程池执行耗时计算
+        await GDTask.SwitchToThreadPool();
+
+        (chunkPointList, chunkFaceList) = await generatedPointsAndFaces(PlanerDomain.chunk, chunkDivisions);
+        (tilePointList, tileFaceList) = await generatedPointsAndFaces(PlanerDomain.tile, tileDivisions);
 
         tilePositionMap = tilePointList.ToDictionary(c => c.position, c => c);
         tileCoordsMap = tilePointList.ToDictionary(c => c.coords, c => c);
         chunkPositionMap = chunkPointList.ToDictionary(c => c.position, c => c);
         chunkCoordsMap = chunkPointList.ToDictionary(c => c.coords, c => c);
 
+        await TaskUtil.ParallelProcessBatch(chunkFaceList, f => f.initTriVertices(this));
+        await TaskUtil.ParallelProcessBatch(tileFaceList, f => f.initTriVertices(this));
+
         await initChunks();
         await initTiles();
-
+        await generateMap();
     }
 
     private async Task<(List<Point> planetPointList, List<Face> planetFaceList)> generatedPointsAndFaces(PlanerDomain domain, int divisions) {
@@ -178,13 +253,13 @@ public partial class Planet : Node3D {
 
         // 先排序后再分配 id，确保 id 是有序的
         List<Point> planetPoints = pointsCollect
-            .OrderBy(p => p.coords.Coords.r) // 先按 r 排序（从北到南）
-            .ThenBy(p => p.coords.Coords.q) // 再按 q 排序（从右到左）
+            .OrderBy(p => p.coords.coords.r) // 先按 r 排序（从北到南）
+            .ThenBy(p => p.coords.coords.q) // 再按 q 排序（从右到左）
             .Peek((p, i) => p.id = i)
             .ToList();
 
-        Dictionary<Vector3, Point> dictionary = planetPoints.ToDictionary(p => p.position, p => p);
-        
+        System.Collections.Generic.Dictionary<Vector3, Point> dictionary = planetPoints.ToDictionary(p => p.position, p => p);
+
         List<Face> planetFaces = planetsCollect
             .Peek((p, i) => p.id = i)
             .ToList();
@@ -195,7 +270,7 @@ public partial class Planet : Node3D {
 
         planetFaces
             .Peek(
-                f => f.TriVertices
+                f => f.triVertices
                     .Select(v => dictionary[v])
                     .NotNull()
                     .Peek(p => p._faces.Add(f))
@@ -203,7 +278,7 @@ public partial class Planet : Node3D {
             )
             .End();
 
-        log.Info($"--- generatedPointsAndFaces for {domain} cost: {Time.GetTicksMsec() - time} ms");
+        log.Info($"generatedPointsAndFaces for {domain} cost: {Time.GetTicksMsec() - time} ms");
 
         return (planetPoints, planetFaces);
     }
@@ -270,7 +345,7 @@ public partial class Planet : Node3D {
                         planetsCollect.Add(
                             new Face {
                                 domain = domain,
-                                TriVertices = [nowLine[j], preLine[j], preLine[j - 1]]
+                                triVertices = [nowLine[j], preLine[j], preLine[j - 1]]
                             }
                         );
                         pointsCollect.Add(
@@ -291,7 +366,7 @@ public partial class Planet : Node3D {
                     planetsCollect.Add(
                         new Face {
                             domain = domain,
-                            TriVertices = [preLine[j], nowLine[j], nowLine[j + 1]]
+                            triVertices = [preLine[j], nowLine[j], nowLine[j + 1]]
                         }
                     );
                 }
@@ -337,7 +412,7 @@ public partial class Planet : Node3D {
                         planetsCollect.Add(
                             new Face {
                                 domain = domain,
-                                TriVertices = [nowLineEast[j], preLineEast[j], preLineEast[j - 1]]
+                                triVertices = [nowLineEast[j], preLineEast[j], preLineEast[j - 1]]
                             }
                         );
                         /*if (i == divisions) {
@@ -358,7 +433,7 @@ public partial class Planet : Node3D {
                                 }
                             );
                         }*/
-                        
+
                         pointsCollect.Add(
                             new Point {
                                 position = nowLineEast[j],
@@ -371,7 +446,7 @@ public partial class Planet : Node3D {
                     planetsCollect.Add(
                         new Face {
                             domain = domain,
-                            TriVertices = [preLineEast[j], nowLineEast[j], nowLineEast[j + 1]]
+                            triVertices = [preLineEast[j], nowLineEast[j], nowLineEast[j + 1]]
                         }
                     );
                 }
@@ -391,7 +466,7 @@ public partial class Planet : Node3D {
                         planetsCollect.Add(
                             new Face {
                                 domain = domain,
-                                TriVertices = [preLineWest[j], nowLineWest[j - 1], nowLineWest[j]]
+                                triVertices = [preLineWest[j], nowLineWest[j - 1], nowLineWest[j]]
                             }
                         );
                         if (j < divisions - i) {
@@ -408,7 +483,7 @@ public partial class Planet : Node3D {
                     planetsCollect.Add(
                         new Face {
                             domain = domain,
-                            TriVertices = [nowLineWest[j], preLineWest[j + 1], preLineWest[j]]
+                            triVertices = [nowLineWest[j], preLineWest[j + 1], preLineWest[j]]
                         }
                     );
                 }
@@ -450,7 +525,7 @@ public partial class Planet : Node3D {
                         planetsCollect.Add(
                             new Face {
                                 domain = domain,
-                                TriVertices = [preLine[j], nowLine[j - 1], nowLine[j]]
+                                triVertices = [preLine[j], nowLine[j - 1], nowLine[j]]
                             }
                         );
                         if (j < divisions - i) {
@@ -467,7 +542,7 @@ public partial class Planet : Node3D {
                     planetsCollect.Add(
                         new Face {
                             domain = domain,
-                            TriVertices = [nowLine[j], preLine[j + 1], preLine[j]]
+                            triVertices = [nowLine[j], preLine[j + 1], preLine[j]]
                         }
                     );
                 }
@@ -491,7 +566,6 @@ public partial class Planet : Node3D {
                 p => new Chunk() {
                     planet = this,
                     point = p,
-                    planetPosition = default, // TODO
                 }
             )
             .ToList();
@@ -512,11 +586,24 @@ public partial class Planet : Node3D {
             (p0, p1) => p0.DistanceTo(p1)
         );
 
-        GD.Print($"initChunks chunkDivisions {chunkDivisions}, cost: {Time.GetTicksMsec() - time} ms");
+        await GDTask.SwitchToMainThread();
+
+        chunkList
+            .Peek(
+                c => {
+                    c.Name = c.id.ToString();
+                    _.Surface.AddChild(c);
+                }
+            )
+            .End();
+
+        log.Info($"initChunks chunkDivisions {chunkDivisions}, cost: {Time.GetTicksMsec() - time} ms");
     }
 
     private async Task initTiles() {
-        var time = Time.GetTicksMsec();
+        await GDTask.SwitchToThreadPool();
+
+        ulong time = Time.GetTicksMsec();
 
         await TaskUtil.ParallelProcessBatch(tilePointList, p => p.orderedFaces());
 
@@ -548,7 +635,7 @@ public partial class Planet : Node3D {
             (p0, p1) => p0.DistanceTo(p1)
         );
 
-        Dictionary<Chunk, List<Tile>> dictionary = chunkList.ToDictionary(c => c, c => new List<Tile>());
+        System.Collections.Generic.Dictionary<Chunk, List<Tile>> dictionary = chunkList.ToDictionary(c => c, c => new List<Tile>());
 
         tileList
             .Peek(t => dictionary[t.chunk].Add(t))
@@ -558,7 +645,74 @@ public partial class Planet : Node3D {
             .Peek(kv => kv.Key._tiles = kv.Value)
             .End();
 
-        GD.Print($"initTiles tileDivisions {tileDivisions}, cost: {Time.GetTicksMsec() - time} ms");
+        log.Info($"initTiles tileDivisions {tileDivisions}, cost: {Time.GetTicksMsec() - time} ms");
+    }
+
+    private async Task generateMap() {
+
+        await GDTask.SwitchToThreadPool();
+
+        Stopwatch stopwatch = new Stopwatch();
+        stopwatch.Start();
+
+        RandomNumberGenerator random = new RandomNumberGenerator();
+        if (seed == 0) {
+            _randomSeed();
+        }
+        random.SetSeed(seed);
+
+        await TaskUtil.ParallelProcessBatch(tileList, t => t.height = ((basicNoise?.GetNoise3Dv(t.point.position) ?? 0.5f) - 0.5f) * noiseStrength);
+
+        //tileList.SampleEvery(1024).Peek(t => log.Info($"the {t.point.position} noise value: {t.height}")).End();
+
+        // 第一阶段：在线程池并行计算网格数据
+        await GDTask.SwitchToThreadPool();
+
+
+        await TaskUtil.ParallelProcessBatch(chunkList, chunk =>  chunk.generateMesh());
+        
+
+        log.Info($"generateMap , cost {stopwatch.ElapsedMilliseconds} ms");
+        stopwatch.Reset();
+
+    }
+
+    private void clear() {
+        // 清理场景树中的 chunk 节点
+        if (chunkList != null && _.Surface != null) {
+            foreach (Chunk chunk in chunkList) {
+                if (chunk != null && chunk.GetParent() != null) {
+                    _.Surface.RemoveChild(chunk);
+                    chunk.QueueFree();
+                }
+            }
+        }
+
+        // 清理所有集合和映射
+        tilePointList = null!;
+        tileFaceList = null!;
+        chunkPointList = null!;
+        chunkFaceList = null!;
+        tilePositionMap = null!;
+        tileCoordsMap = null!;
+        chunkPositionMap = null!;
+        chunkCoordsMap = null!;
+        chunkPointVpTree = null!;
+        chunkList = null!;
+        pointChunkMap = null!;
+        posChunkMap = null!;
+        tileList = null!;
+        tilePointVpTree = null!;
+        pointTileMap = null!;
+        posTileMap = null!;
+    }
+
+    public void OnBeforeSerialize() {
+        clear();
+    }
+
+    public void OnAfterDeserialize() {
+        Task __ = generatedPlane();
     }
 
 }

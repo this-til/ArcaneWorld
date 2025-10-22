@@ -20,45 +20,61 @@ public partial class ConfigManage : Node, IGlobalComponent {
 
     public static ConfigManage instance { get; private set; } = null!;
 
-    private HashSet<Config> dirtySet = new HashSet<Config>();
+    private HashSet<Config> dirtySet = null!;
 
     private JsonObject? cacheJObject;
 
-    public void initialize() {
+    private double timeSinceLastSave = 0.0;
 
+    public void initialize() {
+        
         instance = this;
 
+        dirtySet = new HashSet<Config>();
+        timeSinceLastSave = 0.0;
+        
         LoadConfigFromFile();
 
-        GDTask.Create(
-            async () => {
-                CancellationToken cancellationToken = this.GetCancellationTokenOnDestroy();
-                while (!cancellationToken.IsCancellationRequested) {
-                    await Task.Delay(1000, cancellationToken);
-                    if (dirtySet.Count == 0) {
-                        continue;
-                    }
-
-                    cacheJObject ??= new JsonObject();
-
-                    dirtySet
-                        .TrySelect(
-                            config => (config, data: config.saveToJson(JsonSerializerHold.jsonSerializerOptions)),
-                            (config, e) => log.Error($"配置条目：{config.name} 保存Json数据时失败")
-                        )
-                        .Peek(t => cacheJObject[t.config.name] = t.data)
-                        .End();
-                }
-            }
-        );
-
     }
-
+    
     public void terminate() {
         dirtySet.Clear();
+        dirtySet = null!;
         cacheJObject = null;
+        timeSinceLastSave = 0.0;
 
         instance = null!;
+    }
+
+    public override void _Process(double delta) {
+        timeSinceLastSave += delta;
+        
+        // 每秒检查一次是否需要保存配置
+        if (timeSinceLastSave >= 1.0) {
+            timeSinceLastSave = 0.0;
+            
+            if (dirtySet.Count > 0) {
+                SaveDirtyConfigs();
+            }
+        }
+    }
+
+    /// <summary>
+    /// 保存脏配置到缓存对象
+    /// </summary>
+    private void SaveDirtyConfigs() {
+        cacheJObject ??= new JsonObject();
+
+        dirtySet
+            .TrySelect(
+                config => (config, data: config.saveToJson(JsonSerializerHold.jsonSerializerOptions)),
+                (config, e) => log.Error($"配置条目：{config.name} 保存Json数据时失败")
+            )
+            .Peek(t => cacheJObject[t.config.name] = t.data)
+            .End();
+        
+        // 清空脏配置集合
+        dirtySet.Clear();
     }
 
     public void setDirty(Config config) {

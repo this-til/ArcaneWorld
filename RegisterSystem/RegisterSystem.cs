@@ -366,14 +366,15 @@ public partial class RegisterSystem : IDisposable {
         if (disposed) {
             return;
         }
+        
         disposed = true;
-
-        manageList
-            .TryPeek(m => m.dispose(), (m, ex) => log?.Error($"卸载 {m} 时发生异常：", ex))
-            .End();
 
         registerBasicsSortedSet
             .TryPeek(r => r.dispose(), (r, ex) => log?.Error($"卸载 {r.GetType()}-{r.name} 时触发异常：", ex))
+            .End();
+        
+        manageList
+            .TryPeek(m => m.dispose(), (m, ex) => log?.Error($"卸载 {m} 时发生异常：", ex))
             .End();
 
         manageMap = null!;

@@ -94,7 +94,7 @@ public class UtilTests {
         list.Should().BeEmpty();
     }
 
-    [Fact]
+    /*[Fact]
     public void getParents_Should_ReturnTypeHierarchy() {
         // Arrange
         var type = typeof(DerivedClass);
@@ -107,12 +107,12 @@ public class UtilTests {
         parents.Should().Contain(typeof(BaseClass));
         parents[0].Should().Be(typeof(DerivedClass));
         parents[1].Should().Be(typeof(BaseClass));
-    }
+    }*/
 
     public class BaseClass { }
     public class DerivedClass : BaseClass { }
 
-    [Fact]
+    /*[Fact]
     public void getParents_Should_CacheResults() {
         // Arrange
         var type = typeof(DerivedClass);
@@ -123,8 +123,9 @@ public class UtilTests {
 
         // Assert - 应该返回相同的缓存实例
         parents1.Should().BeSameAs(parents2);
-    }
+    }*/
 
+    /*
     [Fact]
     public void getParents_Should_ReturnEmptyForNull() {
         // Arrange
@@ -136,6 +137,7 @@ public class UtilTests {
         // Assert
         parents.Should().BeEmpty();
     }
+    */
 
     [Fact]
     public void canAwait_Should_DetectAwaitableTypes() {

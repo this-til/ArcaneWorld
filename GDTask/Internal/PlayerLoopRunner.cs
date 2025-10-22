@@ -4,7 +4,7 @@ using System;
 
 namespace Fractural.Tasks.Internal
 {
-    internal sealed class PlayerLoopRunner
+    public sealed class PlayerLoopRunner
     {
         const int InitialSize = 16;
 

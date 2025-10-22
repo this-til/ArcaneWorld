@@ -41,8 +41,6 @@ public partial class Config<T> : Config {
 
     public override Type dataType => typeof(T);
 
-    private ILog log = LogManager.GetLogger(typeof(Config<T>));
-
     private T _value = default!;
 
     public T value {

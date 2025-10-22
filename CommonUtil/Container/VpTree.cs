@@ -45,8 +45,8 @@ public sealed class VpTree<T> {
     }
 
     /// <summary>
-    /// 搜索结果
-    /// Search for results
+    /// 搜索结果（线程安全版本）
+    /// Search for results (Thread-safe version)
     /// </summary>
     /// <param name="target">目标 Target</param>
     /// <param name="numberOfResults">想要的结果数量 Number of results wanted</param>
@@ -54,12 +54,12 @@ public sealed class VpTree<T> {
     /// <param name="distances">距离 Distances</param>
     public void Search(T target, int numberOfResults, out T[] results, out double[] distances) {
         var closestHits = new List<HeapItem>();
-        // 重置 tau 为最长的可能距离
-        // Reset tau to longest possible distance
-        _tau = double.MaxValue;
+        // 使用局部变量tau，确保线程安全
+        // Use local tau variable to ensure thread safety
+        double tau = double.MaxValue;
         // 开始搜索
         // Start search
-        Search(_root, target, numberOfResults, closestHits);
+        Search(_root, target, numberOfResults, closestHits, ref tau);
         // 返回值的临时数组
         // Temp arrays for return values
         var returnResults = new List<T>();
@@ -76,8 +76,6 @@ public sealed class VpTree<T> {
     }
 
     private T[] _items = [];
-
-    private double _tau;
 
     private Node? _root;
 
@@ -139,7 +137,7 @@ public sealed class VpTree<T> {
         return node;
     }
 
-    private void Search(Node? node, T target, int numberOfResults, List<HeapItem> closestHits) {
+    private void Search(Node? node, T target, int numberOfResults, List<HeapItem> closestHits, ref double tau) {
         if (node == null) {
             return;
         }
@@ -147,7 +145,7 @@ public sealed class VpTree<T> {
 
         // 我们找到更短距离的项
         // We found entry with shorter distance
-        if (dist < _tau) {
+        if (dist < tau) {
             if (closestHits.Count == numberOfResults) {
                 // 太多结果，删除第一个（是最远距离的那个）
                 // Too many results, remove the first one which has the longest distance
@@ -162,7 +160,7 @@ public sealed class VpTree<T> {
             // Reorder if we have numberOfResults, and set new tau
             if (closestHits.Count == numberOfResults) {
                 closestHits.Sort((a, b) => Comparer<double>.Default.Compare(b.Dist, a.Dist));
-                _tau = closestHits[0].Dist;
+                tau = closestHits[0].Dist;
             }
         }
 
@@ -171,19 +169,19 @@ public sealed class VpTree<T> {
         }
 
         if (dist < node.Threshold) {
-            if (dist - _tau <= node.Threshold) {
-                Search(node.Left, target, numberOfResults, closestHits);
+            if (dist - tau <= node.Threshold) {
+                Search(node.Left, target, numberOfResults, closestHits, ref tau);
             }
-            if (dist + _tau >= node.Threshold) {
-                Search(node.Right, target, numberOfResults, closestHits);
+            if (dist + tau >= node.Threshold) {
+                Search(node.Right, target, numberOfResults, closestHits, ref tau);
             }
         }
         else {
-            if (dist + _tau >= node.Threshold) {
-                Search(node.Right, target, numberOfResults, closestHits);
+            if (dist + tau >= node.Threshold) {
+                Search(node.Right, target, numberOfResults, closestHits, ref tau);
             }
-            if (dist - _tau <= node.Threshold) {
-                Search(node.Left, target, numberOfResults, closestHits);
+            if (dist - tau <= node.Threshold) {
+                Search(node.Left, target, numberOfResults, closestHits, ref tau);
             }
         }
     }

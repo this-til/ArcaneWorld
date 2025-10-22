@@ -17,7 +17,8 @@ config/icon="res://icon.svg"
 
 [autoload]
 
-SGlobalComponentLoader="res://Script/Global/S_GlobalComponentLoader.cs"
+SGlobalComponentLoader="*res://Script/Global/S_GlobalComponentLoader.cs"
+SGdTaskPlayerLoopAutoload="*res://Script/Global/S_GDTaskPlayerLoopAutoload.cs"
 
 [dotnet]
 

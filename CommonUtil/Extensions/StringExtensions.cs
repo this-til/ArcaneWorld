@@ -4,7 +4,7 @@ using System.Text;
 
 namespace CommonUtil.Extensions;
 
-public static class StringExtendMethod {
+public static class StringExtensions {
 
     /// <summary>
     /// Replaces the format item in a specified String with the text equivalent of the value of a corresponding Object instance in a specified array.

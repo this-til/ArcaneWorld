@@ -5,7 +5,7 @@ using Xunit;
 
 namespace CommonUtil.Tests.Extensions;
 
-public class ArrayExtendMethodTests
+public class ArrayExtensionsTests
 {
     [Fact]
     public void IsEmpty_WithNullArray_ShouldReturnTrue()

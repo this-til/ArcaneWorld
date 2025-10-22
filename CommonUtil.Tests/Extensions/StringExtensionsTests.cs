@@ -7,7 +7,7 @@ using Xunit;
 
 namespace CommonUtil.Tests.Extensions;
 
-public class StringExtendMethodTests
+public class StringExtensionsTests
 {
     [Fact]
     public void Format_WithSimplePlaceholder_ShouldCallStructure()

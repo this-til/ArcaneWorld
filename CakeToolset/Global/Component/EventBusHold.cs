@@ -8,7 +8,7 @@ using Godot;
 namespace CakeToolset.Global.Component;
 
 [Tool]
-public partial class EventBusHold : Node, IGlobalComponent {
+public abstract partial class EventBusHold : Node, IGlobalComponent {
 
     public static EventBus.EventBus eventBus { get; private set; } = null!;
 

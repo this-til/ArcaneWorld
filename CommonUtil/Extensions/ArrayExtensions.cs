@@ -4,7 +4,7 @@ using System.Linq;
 
 namespace CommonUtil.Extensions;
 
-public static class ArrayExtendMethod {
+public static class ArrayExtensions {
 
     /// <summary>
     /// 判断数组是不是空
