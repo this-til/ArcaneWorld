@@ -16,9 +16,12 @@ public partial class GenerateShaderOperationPacks {
         string projectPath = ProjectSettings.GlobalizePath("res://");
         log.Info($"项目根目录: {projectPath}");
 
-        // 扫描所有 .gdshader 文件
+        // 扫描所有 .gdshader 和 .gdshaderinc 文件
         var shaderFiles = ScanShaderFiles(projectPath);
         log.Info($"共扫描到 {shaderFiles.Count} 个 shader 文件");
+
+        // 清理所有生成文件
+        CleanAllGeneratedFiles(projectPath);
 
         // 生成包装类代码
         foreach (var shaderFile in shaderFiles) {
@@ -59,6 +62,7 @@ public partial class GenerateShaderOperationPacks {
                 return;
             }
 
+            // 扫描 .gdshader 文件
             foreach (var file in directory.GetFiles("*.gdshader")) {
                 string resourcePath = string.IsNullOrEmpty(relativePath)
                     ? file.Name
@@ -68,7 +72,23 @@ public partial class GenerateShaderOperationPacks {
                     FileName = file.Name,
                     ResourcePath = resourcePath,
                     FullPath = file.FullName,
-                    DirectoryPath = relativePath
+                    DirectoryPath = relativePath,
+                    FileType = ShaderFileType.Shader
+                });
+            }
+
+            // 扫描 .gdshaderinc 文件
+            foreach (var file in directory.GetFiles("*.gdshaderinc")) {
+                string resourcePath = string.IsNullOrEmpty(relativePath)
+                    ? file.Name
+                    : $"{relativePath}/{file.Name}";
+                    
+                shaderFiles.Add(new ShaderFileInfo {
+                    FileName = file.Name,
+                    ResourcePath = resourcePath,
+                    FullPath = file.FullName,
+                    DirectoryPath = relativePath,
+                    FileType = ShaderFileType.Include
                 });
             }
 
@@ -94,6 +114,14 @@ public partial class GenerateShaderOperationPacks {
         // 生成类名
         string className = GetClassName(shaderFile.FileName);
         
+        if (shaderFile.FileType == ShaderFileType.Include) {
+            return GenerateIncludeWrapperCode(shaderFile, uniforms, className);
+        } else {
+            return GenerateShaderWrapperCodeInternal(shaderFile, uniforms, className);
+        }
+    }
+
+    private static string GenerateShaderWrapperCodeInternal(ShaderFileInfo shaderFile, List<UniformInfo> uniforms, string className) {
         var code = new StringBuilder();
         code.AppendLine("using Godot;");
         code.AppendLine("using System;");
@@ -118,12 +146,66 @@ public partial class GenerateShaderOperationPacks {
         // 生成属性，直接操作 ShaderMaterial
         foreach (var uniform in uniforms) {
             string propertyName = ToCamelCase(uniform.Name);
+            string comment = uniform.IsGlobal ? $"Global Shader 参数: {uniform.Name}" : $"Shader 参数: {uniform.Name}";
             code.AppendLine($"    /// <summary>");
-            code.AppendLine($"    /// Shader 参数: {uniform.Name}");
+            code.AppendLine($"    /// {comment}");
             code.AppendLine($"    /// </summary>");
             code.AppendLine($"    public {uniform.CSharpType} {propertyName} {{");
-            code.AppendLine($"        get => _material.GetShaderParameter(\"{uniform.Name}\").As<{uniform.CSharpType}>();");
-            code.AppendLine($"        set => _material.SetShaderParameter(\"{uniform.Name}\", value);");
+            
+            if (uniform.IsGlobal) {
+                code.AppendLine($"        get => RenderingServer.GlobalShaderParameterGet(\"{uniform.Name}\").As<{uniform.CSharpType}>();");
+                code.AppendLine($"        set => RenderingServer.GlobalShaderParameterSet(\"{uniform.Name}\", value);");
+            } else {
+                code.AppendLine($"        get => _material.GetShaderParameter(\"{uniform.Name}\").As<{uniform.CSharpType}>();");
+                code.AppendLine($"        set => _material.SetShaderParameter(\"{uniform.Name}\", value);");
+            }
+            code.AppendLine($"    }}");
+            code.AppendLine();
+        }
+        
+        code.AppendLine("}");
+        
+        return code.ToString();
+    }
+
+    private static string GenerateIncludeWrapperCode(ShaderFileInfo shaderFile, List<UniformInfo> uniforms, string className) {
+        var code = new StringBuilder();
+        code.AppendLine("using Godot;");
+        code.AppendLine("using System;");
+        code.AppendLine();
+        code.AppendLine("namespace ArcaneWorld.Generated.ShaderWrappers;");
+        code.AppendLine();
+        code.AppendLine("/// <summary>");
+        code.AppendLine($"/// Shader Include 包装类: {shaderFile.FileName}");
+        code.AppendLine($"/// 路径: res://{shaderFile.ResourcePath}");
+        code.AppendLine("/// </summary>");
+        code.AppendLine($"public class {className} {{");
+        code.AppendLine();
+        
+        // 生成字段和构造函数
+        code.AppendLine("    private readonly ShaderMaterial _material;");
+        code.AppendLine();
+        code.AppendLine($"    public {className}(ShaderMaterial material) {{");
+        code.AppendLine("        _material = material;");
+        code.AppendLine("    }");
+        code.AppendLine();
+        
+        // 生成属性，直接操作 ShaderMaterial
+        foreach (var uniform in uniforms) {
+            string propertyName = ToCamelCase(uniform.Name);
+            string comment = uniform.IsGlobal ? $"Global Shader 参数: {uniform.Name}" : $"Shader 参数: {uniform.Name}";
+            code.AppendLine($"    /// <summary>");
+            code.AppendLine($"    /// {comment}");
+            code.AppendLine($"    /// </summary>");
+            code.AppendLine($"    public {uniform.CSharpType} {propertyName} {{");
+            
+            if (uniform.IsGlobal) {
+                code.AppendLine($"        get => RenderingServer.GlobalShaderParameterGet(\"{uniform.Name}\").As<{uniform.CSharpType}>();");
+                code.AppendLine($"        set => RenderingServer.GlobalShaderParameterSet(\"{uniform.Name}\", value);");
+            } else {
+                code.AppendLine($"        get => _material.GetShaderParameter(\"{uniform.Name}\").As<{uniform.CSharpType}>();");
+                code.AppendLine($"        set => _material.SetShaderParameter(\"{uniform.Name}\", value);");
+            }
             code.AppendLine($"    }}");
             code.AppendLine();
         }
@@ -137,22 +219,24 @@ public partial class GenerateShaderOperationPacks {
         var uniforms = new List<UniformInfo>();
         
         // 匹配 uniform 声明的正则表达式
-        // uniform <type> <name> : <hints> = <default>;
-        var regex = new Regex(@"uniform\s+(\w+(?:<[^>]+>)?)\s+(\w+)\s*(?::\s*([^=;]+))?\s*(?:=\s*([^;]+))?\s*;");
+        // [global] uniform <type> <name> : <hints> = <default>;
+        var regex = new Regex(@"(global\s+)?uniform\s+(\w+(?:<[^>]+>)?)\s+(\w+)\s*(?::\s*([^=;]+))?\s*(?:=\s*([^;]+))?\s*;");
         
         var matches = regex.Matches(shaderContent);
         foreach (Match match in matches) {
-            string glslType = match.Groups[1].Value.Trim();
-            string name = match.Groups[2].Value.Trim();
-            string hints = match.Groups[3].Success ? match.Groups[3].Value.Trim() : "";
-            string defaultValue = match.Groups[4].Success ? match.Groups[4].Value.Trim() : "";
+            bool isGlobal = match.Groups[1].Success && match.Groups[1].Value.Trim() == "global";
+            string glslType = match.Groups[2].Value.Trim();
+            string name = match.Groups[3].Value.Trim();
+            string hints = match.Groups[4].Success ? match.Groups[4].Value.Trim() : "";
+            string defaultValue = match.Groups[5].Success ? match.Groups[5].Value.Trim() : "";
             
             var uniformInfo = new UniformInfo {
                 Name = name,
                 GlslType = glslType,
                 CSharpType = MapGlslTypeToCSharp(glslType, hints),
                 DefaultValue = MapDefaultValue(glslType, defaultValue, hints),
-                Hints = hints
+                Hints = hints,
+                IsGlobal = isGlobal
             };
             
             uniforms.Add(uniformInfo);
@@ -274,9 +358,18 @@ public partial class GenerateShaderOperationPacks {
     }
 
     private static string GetClassName(string fileName) {
-        // 移除 .gdshader 扩展名并转换为类名
-        string baseName = fileName.Replace(".gdshader", "");
-        return ToPascalCase(baseName) + "Shader";
+        // 移除扩展名并转换为类名
+        string baseName;
+        if (fileName.EndsWith(".gdshaderinc")) {
+            baseName = fileName.Replace(".gdshaderinc", "");
+            return ToPascalCase(baseName) + "IncShader";
+        } else if (fileName.EndsWith(".gdshader")) {
+            baseName = fileName.Replace(".gdshader", "");
+            return ToPascalCase(baseName) + "Shader";
+        } else {
+            baseName = fileName;
+            return ToPascalCase(baseName) + "Shader";
+        }
     }
 
     private static string ToPascalCase(string name) {
@@ -333,6 +426,7 @@ public partial class GenerateShaderOperationPacks {
         public string ResourcePath { get; set; } = "";
         public string FullPath { get; set; } = "";
         public string DirectoryPath { get; set; } = "";
+        public ShaderFileType FileType { get; set; }
     }
 
     private class UniformInfo {
@@ -341,6 +435,25 @@ public partial class GenerateShaderOperationPacks {
         public string CSharpType { get; set; } = "";
         public string DefaultValue { get; set; } = "";
         public string Hints { get; set; } = "";
+        public bool IsGlobal { get; set; } = false;
+    }
+
+    private static void CleanAllGeneratedFiles(string projectPath) {
+        string generatedDir = Path.Combine(projectPath, "Script", "Generated", "ShaderWrappers");
+        if (Directory.Exists(generatedDir)) {
+            try {
+                Directory.Delete(generatedDir, true);
+                log.Info($"已清理所有生成文件: {generatedDir}");
+            }
+            catch (Exception ex) {
+                log.Error($"清理生成文件目录失败 {generatedDir}: {ex.Message}");
+            }
+        }
+    }
+
+    private enum ShaderFileType {
+        Shader,    // .gdshader 文件
+        Include    // .gdshaderinc 文件
     }
 }
 

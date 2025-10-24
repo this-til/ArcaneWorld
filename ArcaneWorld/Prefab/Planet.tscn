@@ -1,4 +1,4 @@
-[gd_scene load_steps=13 format=3 uid="uid://bin3c1skftg18"]
+[gd_scene load_steps=14 format=3 uid="uid://bin3c1skftg18"]
 
 [ext_resource type="Script" uid="uid://e37wk58y822l" path="res://Script/Planet/Planet.cs" id="1_5js8h"]
 [ext_resource type="Script" uid="uid://cqn3fdypd6dxi" path="res://Script/Planet/LongitudeLatitude.cs" id="2_xva0s"]
@@ -8,7 +8,7 @@
 [ext_resource type="Script" uid="uid://bmjowuxck5v32" path="res://addons/zylann.atmosphere/noise_cubemap.gd" id="6_rxshr"]
 
 [sub_resource type="FastNoiseLite" id="FastNoiseLite_1oaqd"]
-seed = 645123
+seed = 894651230
 frequency = 1.0
 fractal_type = 0
 
@@ -49,6 +49,8 @@ resolution = 256
 scale = Vector3(100, 100, 100)
 metadata/_custom_type_script = "uid://bmjowuxck5v32"
 
+[sub_resource type="SphereMesh" id="SphereMesh_1oaqd"]
+
 [node name="Planet" type="Node3D"]
 script = ExtResource("1_5js8h")
 tileDivisions = 120
@@ -57,15 +59,17 @@ radius = 151.38795
 atmosphereHeight = 30.277592
 seed = 765182564
 basicNoise = SubResource("FastNoiseLite_1oaqd")
-noiseStrength = 12.0
+noiseStrength = 13.0
 
 [node name="LongitudeLatitude" type="Node3D" parent="."]
+visible = false
 script = ExtResource("2_xva0s")
 radius = 181.66554565429686
 lineMaterial = SubResource("ShaderMaterial_bo13y")
 visibility = 1.0
 
 [node name="PlanetAtmosphere" type="Node3D" parent="."]
+visible = false
 script = ExtResource("4_uyuuk")
 planet_radius = 151.38795
 atmosphere_height = 30.277592
@@ -91,3 +95,10 @@ shader_params/u_sphere_depth_factor = 0.0
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 317.87506)
 
 [node name="Surface" type="Node3D" parent="."]
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, -0.6626201, 0.74895567, 0, -0.74895567, -0.6626201, 0, 0, 0)
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="."]
+transform = Transform3D(10, 0, 0, 0, 10, 0, 0, 0, 10, -22.49025, 149.10976, -12.214147)
+mesh = SubResource("SphereMesh_1oaqd")

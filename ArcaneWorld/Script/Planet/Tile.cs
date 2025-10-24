@@ -1,4 +1,5 @@
 ﻿using ArcaneWorld.Util;
+using ArcaneWorld.Util.Extensions;
 using CommonUtil.Extensions;
 using Godot;
 
@@ -113,6 +114,7 @@ public partial class Tile {
                     colors: MeshConstant.QuadArr(MeshConstant.Weights1, MeshConstant.Weights2)
                 );
 
+                
                 // 绘制地面
                 /*generateChunkGridTool.terrain.AddTriangleUnperturbed(
                     [v0, v1, v2],
@@ -123,7 +125,7 @@ public partial class Tile {
 
                 // 绘制水面
                 if (isUnderWater) {
-                    generateChunkGridTool.terrain.AddTriangleFan(
+                    generateChunkGridTool.water.AddTriangleFan(
                         [vw0, vw1, vw2],
                         colors: MeshConstant.TriArr(MeshConstant.Weights1)
                     );

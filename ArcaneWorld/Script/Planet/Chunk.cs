@@ -1,4 +1,6 @@
-﻿using ArcaneWorld.Nodes;
+﻿using ArcaneWorld.Generated;
+using ArcaneWorld.Generated.ShaderWrappers;
+using ArcaneWorld.Nodes;
 using ArcaneWorld.Util;
 using Fractural.Tasks;
 using Godot;
@@ -80,14 +82,21 @@ public partial class Chunk : Node3D {
         generateChunkGridTool.water.GenerateNormals();
 
         terrain.Mesh = generateChunkGridTool.terrain.Commit();
+
+        ShaderMaterial terrainMaterial = GD.Load<ShaderMaterial>(R.Materials.Terrain_tres);
+        planet.applePlanetAttribute(new PlanetDataIncShader(terrainMaterial));
+        terrain.MaterialOverride = terrainMaterial;
+
         water.Mesh = generateChunkGridTool.water.Commit();
+
+        ShaderMaterial waterMaterial = GD.Load<ShaderMaterial>(R.Materials.Water_tres);
+        planet.applePlanetAttribute(new PlanetDataIncShader(waterMaterial));
+        water.MaterialOverride = waterMaterial;
 
         generateChunkGridTool.terrain.Clear();
         generateChunkGridTool.water.Clear();
 
     }
-
-
 
     /// <summary>
     /// 仅绘制六边形（无扰动，点平均周围地块高度）

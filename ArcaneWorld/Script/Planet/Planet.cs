@@ -3,6 +3,7 @@ using System.Diagnostics;
 using System.IO.Compression;
 using System.Threading.Tasks;
 using ArcaneWorld.Generated;
+using ArcaneWorld.Generated.ShaderWrappers;
 using ArcaneWorld.Script.Constants;
 using ArcaneWorld.Util;
 using CakeToolset.Attribute;
@@ -144,7 +145,13 @@ public partial class Planet : Node3D, ISerializationListener {
         tilePointVpTree.Search(pos.Normalized(), 1, out Vector3[] results, out double[] __);
         return posTileMap.GetValueOrDefault(results[0]);
     }
-    
+
+    public void applePlanetAttribute(PlanetDataIncShader planetDataIncShader) {
+        planetDataIncShader.radius = radius;
+        planetDataIncShader.atmosphereHeight = atmosphereHeight;
+        planetDataIncShader.chunkDivisions = chunkDivisions;
+        planetDataIncShader.tileDivisions = tileDivisions;
+    }
 
     public override void _Ready() {
         base._Ready();
@@ -668,9 +675,7 @@ public partial class Planet : Node3D, ISerializationListener {
         // 第一阶段：在线程池并行计算网格数据
         await GDTask.SwitchToThreadPool();
 
-
-        await TaskUtil.ParallelProcessBatch(chunkList, chunk =>  chunk.generateMesh());
-        
+        await TaskUtil.ParallelProcessBatch(chunkList, chunk => chunk.generateMesh());
 
         log.Info($"generateMap , cost {stopwatch.ElapsedMilliseconds} ms");
         stopwatch.Reset();

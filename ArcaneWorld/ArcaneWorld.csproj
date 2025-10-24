@@ -15,36 +15,50 @@
         <ProjectReference Include="../RegisterSystem.Generators/RegisterSystem.Generators.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false"/>
         <ProjectReference Include="../ArcaneWorld.Generators/ArcaneWorld.Generators.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false"/>
         <ProjectReference Include="../CakeToolset.Generators/CakeToolset.Generators.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false"/>
-        <ProjectReference Include="../GDTask/GDTask.csproj"/>  
+        <ProjectReference Include="../GDTask/GDTask.csproj"/>
         <ProjectReference Include="../CakeToolset/CakeToolset.csproj"/>
     </ItemGroup>
 
     <ItemGroup>
         <PackageReference Include="FlexibleRequired.Analyzers" Version="1.0.0"/>
         <PackageReference Include="GodotSharp.SourceGenerators" Version="2.6.0"/>
-        <PackageReference Include="System.Configuration.ConfigurationManager" Version="8.0.1" />
-        <PackageReference Include="System.Reactive" Version="6.1.0" />
+        <PackageReference Include="System.Configuration.ConfigurationManager" Version="8.0.1"/>
+        <PackageReference Include="System.Reactive" Version="6.1.0"/>
     </ItemGroup>
 
     <ItemGroup>
-      <Compile Remove=".godot\**" />
-      <Compile Remove="Flow\**" />
-      <Compile Remove="Test\**" />
+        <Compile Remove=".godot\**"/>
+        <Compile Remove="Flow\**"/>
+        <Compile Remove="Test\**"/>
     </ItemGroup>
 
     <ItemGroup>
-      <EmbeddedResource Remove=".godot\**" />
-      <EmbeddedResource Remove="Flow\**" />
-      <EmbeddedResource Remove="Test\**" />
+        <EmbeddedResource Remove=".godot\**"/>
+        <EmbeddedResource Remove="Flow\**"/>
+        <EmbeddedResource Remove="Test\**"/>
     </ItemGroup>
 
     <ItemGroup>
-      <Content Include="addons\ArcaneWorldGenerator\plugin.cfg" />
-      <Content Include="assembly_load.config.json" />
+        <Content Include="addons\ArcaneWorldGenerator\plugin.cfg"/>
+        <Content Include="assembly_load.config.json"/>
+        <Content Include="Shaders\Planet\LongitudeLatitude\LineAlpha.gdshader" />
+        <Content Include="Shaders\Planet\LongitudeLatitude\LineAlpha.gdshader.uid" />
+        <Content Include="Shaders\Planet\PlanetData.gdshaderinc" />
+        <Content Include="Shaders\Planet\PlanetData.gdshaderinc.uid" />
+        <Content Include="Shaders\Planet\PlanetSurface.gdshader" />
+        <Content Include="Shaders\Planet\PlanetSurface.gdshader.uid" />
+        <Content Include="Shaders\Planet\Sebastian\Geo\GeoMath.gdshaderinc" />
+        <Content Include="Shaders\Planet\Sebastian\Geo\GeoMath.gdshaderinc.uid" />
+        <Content Include="Shaders\Planet\Sebastian\Geo\SphereToRectMiniMap.gdshader" />
+        <Content Include="Shaders\Planet\Sebastian\Geo\SphereToRectMiniMap.gdshader.uid" />
+        <Content Include="Shaders\Planet\Sebastian\Math.gdshaderinc" />
+        <Content Include="Shaders\Planet\Sebastian\Math.gdshaderinc.uid" />
+        <Content Include="Shaders\Planet\Sebastian\Triplanar.gdshaderinc" />
+        <Content Include="Shaders\Planet\Sebastian\Triplanar.gdshaderinc.uid" />
     </ItemGroup>
 
     <ItemGroup>
-      <Folder Include="Script\Register\Recipe\" />
+        <Folder Include="Script\Register\Recipe\"/>
     </ItemGroup>
-    
+
 </Project>

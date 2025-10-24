@@ -38,3 +38,10 @@ folder_colors={
 "res://Shaders/": "yellow",
 "res://addons/": "purple"
 }
+
+[shader_globals]
+
+editMode={
+"type": "bool",
+"value": true
+}

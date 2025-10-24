@@ -2,7 +2,7 @@
 // 从着色模式：Unshaded，顶点颜色用作反照率，透明：ALPHA 的 StandardMaterial3D 转出
 
 shader_type spatial;
-render_mode blend_mix, depth_draw_opaque, cull_back, diffuse_burley, specular_schlick_ggx, unshaded;
+render_mode blend_mix, depth_draw_always, cull_disabled, diffuse_burley, specular_schlick_ggx, unshaded;
 
 // 控制全局 Alpha 的因子（ALPHA 最后会乘以该因子）
 uniform float alpha_factor: hint_range(0.0, 1.0) = 1.0;
