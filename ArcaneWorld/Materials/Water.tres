@@ -1,0 +1,62 @@
+[gd_resource type="ShaderMaterial" load_steps=8 format=3 uid="uid://dvq837pwbfpgw"]
+
+[ext_resource type="Shader" uid="uid://b36wabse4nsqj" path="res://Shaders/Planet/PlanetWaterSurface.gdshader" id="1_7u5yi"]
+
+[sub_resource type="FastNoiseLite" id="FastNoiseLite_7u5yi"]
+noise_type = 3
+seed = 58
+fractal_type = 2
+
+[sub_resource type="NoiseTexture2D" id="NoiseTexture2D_1eskk"]
+noise = SubResource("FastNoiseLite_7u5yi")
+seamless = true
+as_normal_map = true
+
+[sub_resource type="FastNoiseLite" id="FastNoiseLite_1eskk"]
+noise_type = 3
+seed = 52
+fractal_type = 2
+
+[sub_resource type="NoiseTexture2D" id="NoiseTexture2D_ex1p1"]
+noise = SubResource("FastNoiseLite_1eskk")
+seamless = true
+as_normal_map = true
+bump_strength = 7.0
+
+[sub_resource type="FastNoiseLite" id="FastNoiseLite_vaali"]
+
+[sub_resource type="NoiseTexture2D" id="NoiseTexture2D_fxb00"]
+noise = SubResource("FastNoiseLite_vaali")
+
+[resource]
+render_priority = 0
+shader = ExtResource("1_7u5yi")
+shader_parameter/radius = 151.38795
+shader_parameter/atmosphereHeight = 30.277592
+shader_parameter/chunkDivisions = 12
+shader_parameter/tileDivisions = 120
+shader_parameter/invPlanetMatrix = Projection(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1)
+shader_parameter/albedo = Color(0.5886373, 0.7220236, 1, 1)
+shader_parameter/fresnelColor = Color(0, 0, 0, 1)
+shader_parameter/fresnelPower = 5.0
+shader_parameter/metallic = 0.50000002375
+shader_parameter/roughness = 0.0
+shader_parameter/triplanarScale = 0.010000000475
+shader_parameter/textureNormal = SubResource("NoiseTexture2D_1eskk")
+shader_parameter/waveDirection = Vector2(2, 0)
+shader_parameter/textureNormal2 = SubResource("NoiseTexture2D_ex1p1")
+shader_parameter/waveDirection2 = Vector2(0, 1)
+shader_parameter/timeScale = 0.00999999977648
+shader_parameter/wave = SubResource("NoiseTexture2D_fxb00")
+shader_parameter/noiseScale = 10.0
+shader_parameter/heightScale = 0.15
+shader_parameter/deepColor = Color(0.38687575, 0.4112882, 0.8392663, 1)
+shader_parameter/shallowColor = Color(0.2718951, 0.3939394, 0.8700163, 1)
+shader_parameter/beersLaw = 2.0
+shader_parameter/deepOffset = -0.75
+shader_parameter/waterTransparency = 0.50000002375
+shader_parameter/depthScale = 1.0
+shader_parameter/edgeColor = Color(0.7694324, 0.7694324, 0.7694324, 1)
+shader_parameter/edgeScale = 0.1
+shader_parameter/near = 1.0
+shader_parameter/far = 100.0

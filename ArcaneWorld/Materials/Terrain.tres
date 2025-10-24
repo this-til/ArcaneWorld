@@ -1,0 +1,22 @@
+[gd_resource type="ShaderMaterial" load_steps=6 format=3 uid="uid://bdb66f2bmkrgl"]
+
+[ext_resource type="Shader" uid="uid://bnmdbi4m4dy6k" path="res://Shaders/Planet/PlanetSurface.gdshader" id="1_xj8ab"]
+[ext_resource type="Texture2D" uid="uid://cud1hagpfue16" path="res://Cartoon_Texture_Pack/GRASS/GRASS_Dense/GRASS_Dense_Tint_01/Textures/Grass_Dense_Tint_01_Base_Basecolor_A.png" id="2_l5wot"]
+[ext_resource type="Texture2D" uid="uid://4m2bqihv18y5" path="res://Cartoon_Texture_Pack/GRASS/GRASS_Dense/GRASS_Dense_Tint_01/Textures/Grass_Dense_Tint_01_Base_Metallic.png" id="3_xpc6f"]
+[ext_resource type="Texture2D" uid="uid://ny17yv7pnsw4" path="res://Cartoon_Texture_Pack/GRASS/GRASS_Dense/GRASS_Dense_Tint_01/Textures/Grass_Dense_Tint_01_Base_Normal.png" id="4_gvf8o"]
+[ext_resource type="Texture2D" uid="uid://gwp8uscmxpcm" path="res://Cartoon_Texture_Pack/GRASS/GRASS_Dense/GRASS_Dense_Tint_01/Textures/Grass_Dense_Tint_01_Base_AO.png" id="5_gk41a"]
+
+[resource]
+render_priority = 0
+shader = ExtResource("1_xj8ab")
+shader_parameter/radius = 151.38795
+shader_parameter/atmosphereHeight = 30.277592
+shader_parameter/chunkDivisions = 12
+shader_parameter/tileDivisions = 120
+shader_parameter/invPlanetMatrix = Projection(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1)
+shader_parameter/albedo_texture = ExtResource("2_l5wot")
+shader_parameter/normal_texture = ExtResource("4_gvf8o")
+shader_parameter/metallic_texture = ExtResource("3_xpc6f")
+shader_parameter/roughness_texture = ExtResource("5_gk41a")
+shader_parameter/triplanar_scale = 1.0
+shader_parameter/albedo_color = Color(1, 1, 1, 1)
